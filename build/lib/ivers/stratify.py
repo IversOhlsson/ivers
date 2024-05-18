@@ -1,7 +1,6 @@
 import pandas as pd
 from pandas import DataFrame
 from sklearn.model_selection import train_test_split
-from sklearn.model_selection import StratifiedKFold
 from typing import List, Dict, Tuple, Optional
 import numpy as np
 import logging
@@ -112,85 +111,3 @@ def stratify_endpoint(df: DataFrame, order: List[str],
     
     return train_df, test_df, col_abbreviations
 
-def stratify_endpoint_cv(df: pd.DataFrame, 
-                         order: List[str], 
-                         smiles_column: str, 
-                         exclude_columns: List[str], 
-                         aggregation_rules: Dict[str, str], 
-                         n_splits: int, 
-                         random_state: int = 42, 
-                         label_column: Optional[str] = None) -> List[Tuple[pd.DataFrame, pd.DataFrame, Dict[str, str]]]:
-    """
-    Manage the distribution of the DataFrame by aggregating, generating a stratify key with optional label considerations, and performing k-fold cross-validation. Additionally returns column abbreviation mappings for each fold.
-
-    Args:
-        df: The original DataFrame.
-        order: Ordered list of endpoint columns for stratification.
-        smiles_column: Column name containing the SMILES strings for aggregation grouping.
-        exclude_columns: Columns to exclude from mean aggregation.
-        aggregation_rules: Specific aggregation rules for some columns.
-        n_splits: Number of folds for cross-validation.
-        random_state: Random state for reproducibility.
-        label_column: Optional column for additional grouping in stratification.
-    Returns:
-        A list of tuples, each containing the training and testing datasets for a fold, and a dictionary of column abbreviations.
-    """
-    df_processed = aggregate_dataframe(df, smiles_column, exclude_columns, aggregation_rules)
-    df_processed, col_abbreviations = create_stratify_key(df_processed, order, label_column)
-    
-    skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=random_state)
-    splits = []
-    
-    for train_index, test_index in skf.split(df_processed, df_processed['StratifyKey']):
-        train_df = df_processed.iloc[train_index]
-        test_df = df_processed.iloc[test_index]
-        splits.append((train_df, test_df, col_abbreviations))
-    
-    return splits
-
-
-def stratify_split_and_cv(df: pd.DataFrame, 
-                          order: List[str], 
-                          smiles_column: str, 
-                          exclude_columns: List[str], 
-                          aggregation_rules: Dict[str, str], 
-                          test_size: float, 
-                          n_splits: int, 
-                          random_state: int = 42, 
-                          label_column: Optional[str] = None) -> Tuple[pd.DataFrame, List[Tuple[pd.DataFrame, pd.DataFrame]], Dict[str, str]]:
-    """
-    Split the data into a test set and perform cross-validation on the remaining data, ensuring stratified distribution of the endpoints.
-
-    Args:
-        df: The original DataFrame.
-        order: Ordered list of endpoint columns for stratification.
-        smiles_column: Column name containing the SMILES strings for aggregation grouping.
-        exclude_columns: Columns to exclude from mean aggregation.
-        aggregation_rules: Specific aggregation rules for some columns.
-        test_size: Proportion of the dataset to include in the test split.
-        n_splits: Number of folds for cross-validation.
-        random_state: Random state for reproducibility.
-        label_column: Optional column for additional grouping in stratification.
-
-    Returns:
-        A tuple containing the test dataset, a list of tuples (each with training and validation datasets for a fold), and a dictionary of column abbreviations.
-    """
-    df_processed = aggregate_dataframe(df, smiles_column, exclude_columns, aggregation_rules)
-    df_processed, col_abbreviations = create_stratify_key(df_processed, order, label_column)
-    
-    remaining_df, test_df = train_test_split(
-        df_processed, 
-        test_size=test_size, 
-        random_state=random_state, 
-        stratify=df_processed['StratifyKey']
-    )
-    
-    skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=random_state)
-    splits = []
-    
-    for train_index, val_index in skf.split(remaining_df, remaining_df['StratifyKey']):
-        train_df = remaining_df.iloc[train_index]
-        val_df = remaining_df.iloc[val_index]
-        splits.append((train_df, val_df))
-    
-    return test_df, splits, col_abbreviations
