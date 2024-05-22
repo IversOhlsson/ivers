@@ -1,21 +1,16 @@
 # Ivers
 
 
-This project offers tools for managing data splits, ensuring endpoint distributions are maintained, and presents two novel temporal split techniques: 'leaky' and 'all for free' splits. See the explanation below.
+This project offers tools for managing data splits, ensuring endpoint distributions are maintained, and presents two novel temporal split techniques: 'leaky' and 'all for free' splits. See the explanation below. 
 
 **Note**: This library was used in this paper [PlaceHolder](https://github.com/IversOhlsson/ivers) to generate data splits for the Chemprop library.
 
-
 ## Features
-
-- **Temporal Splits**: Supports two types of temporal data splits:
-  - **Leaky**: Allows the same input data to be used in both training and test sets, but not for the same endpoint.
-  - **AllForFree**: Provides a stricter temporal separation, ensuring that the input data is entirely independent of the test set. The logic involves taking x% from all the endpoints and then adding all other endpoints for that input data that has already been added.
-  
-- **Stratified Endpoint Split**:
-  - **Main Feature**: Introduces a stratified endpoint split, crucial for maintaining a consistent distribution of data across different categories and/or endpoints in your datasets.
-  
-- **General**: Includes support to generate splits for x number of cross-validation splits.
+  - **Temporal Leaky**: Allows for forward-leakage in your data to simulate real-world scenarios where future data might influence the model subtly.
+  - **Temporal AllForFree**: Provides a stricter temporal separation, ensuring that the training data is entirely independent of the test set, suitable for rigorous testing of model predictions over time.
+  - **Temporal Fold Split**: Implements a novel approach to increasing the training set size successively across multiple folds based on the temporal time sequence
+  - **Stratified Endpoint Split**: Our library introduces a stratified endpoint split, crucial for maintaining a consistent distribution of data across different categories or endpoints in your datasets. Especially useful in scenarios where endpoint distributions are critical, such as in cheminformatics and bioinformatics.
+  - **Cross-Validation Support**: Integrates capabilities to ensure that each cross-validation split maintains endpoint distribution, ideal for developing models that are generalizable across varied data conditions.
 
 ## Integration with Chemprop
 
