@@ -1,9 +1,8 @@
 # Ivers
 
+This project provides a suite of tools for managing data splits, preserving endpoint distributions, and introduces two innovative temporal split methodologies: the 'Leaky' and 'All for Free' splits. For further details, please refer to the explanations below. These tools are highly compatible with Chemprop, facilitating the generation of splits that seamlessly integrate with the Chemprop framework. 
 
-This project offers tools for managing data splits, ensuring endpoint distributions are maintained, and presents two novel temporal split techniques: 'leaky' and 'all for free' splits. See the explanation below. 
-
-**Note**: This library was used in this paper [PlaceHolder](https://github.com/IversOhlsson/ivers) to generate data splits for the Chemprop library.
+**Note**: This library was used in this paper [PlaceHolder](https://github.com/IversOhlsson/ivers) to generate data splits.
 
 ## Features
   - **Temporal Leaky**: This approach offers a more relaxed temporal separation, permitting a slight overlap between the training and test sets for different endpoints, allowing the model to be trained and tested on the same compound but for different endpoints, with each endpoint receiving x% of data. This setup closely simulates real-world scenarios where a model might access one endpoint before another.
