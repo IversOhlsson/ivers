@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ivers package &mdash; ivers 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=01f34227"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            ivers
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">ivers package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#ivers-allforfree-module">ivers.allforfree module</a></li>
+<li><a class="reference internal" href="#ivers-leaky-module">ivers.leaky module</a></li>
+<li><a class="reference internal" href="#module-ivers.stratify">ivers.stratify module</a><ul>
+<li><a class="reference internal" href="#ivers.stratify.aggregate_dataframe"><code class="docutils literal notranslate"><span class="pre">aggregate_dataframe()</span></code></a></li>
+<li><a class="reference internal" href="#ivers.stratify.create_stratify_key"><code class="docutils literal notranslate"><span class="pre">create_stratify_key()</span></code></a></li>
+<li><a class="reference internal" href="#ivers.stratify.extract_features"><code class="docutils literal notranslate"><span class="pre">extract_features()</span></code></a></li>
+<li><a class="reference internal" href="#ivers.stratify.split_dataframe"><code class="docutils literal notranslate"><span class="pre">split_dataframe()</span></code></a></li>
+<li><a class="reference internal" href="#ivers.stratify.stratify_endpoint"><code class="docutils literal notranslate"><span class="pre">stratify_endpoint()</span></code></a></li>
+<li><a class="reference internal" href="#ivers.stratify.stratify_endpoint_cv"><code class="docutils literal notranslate"><span class="pre">stratify_endpoint_cv()</span></code></a></li>
+<li><a class="reference internal" href="#ivers.stratify.stratify_split_and_cv"><code class="docutils literal notranslate"><span class="pre">stratify_split_and_cv()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-ivers.temporal">ivers.temporal module</a><ul>
+<li><a class="reference internal" href="#ivers.temporal.allforfree_endpoint_split"><code class="docutils literal notranslate"><span class="pre">allforfree_endpoint_split()</span></code></a></li>
+<li><a class="reference internal" href="#ivers.temporal.allforfree_folds_endpoint_split"><code class="docutils literal notranslate"><span class="pre">allforfree_folds_endpoint_split()</span></code></a></li>
+<li><a class="reference internal" href="#ivers.temporal.extract_features"><code class="docutils literal notranslate"><span class="pre">extract_features()</span></code></a></li>
+<li><a class="reference internal" href="#ivers.temporal.get_aggregation_rules"><code class="docutils literal notranslate"><span class="pre">get_aggregation_rules()</span></code></a></li>
+<li><a class="reference internal" href="#ivers.temporal.leaky_endpoint_split"><code class="docutils literal notranslate"><span class="pre">leaky_endpoint_split()</span></code></a></li>
+<li><a class="reference internal" href="#ivers.temporal.leaky_folds_endpoint_split"><code class="docutils literal notranslate"><span class="pre">leaky_folds_endpoint_split()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-ivers">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ivers</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">ivers package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/ivers.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="ivers-package">
+<h1>ivers package<a class="headerlink" href="#ivers-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="ivers-allforfree-module">
+<h2>ivers.allforfree module<a class="headerlink" href="#ivers-allforfree-module" title="Link to this heading"></a></h2>
+</section>
+<section id="ivers-leaky-module">
+<h2>ivers.leaky module<a class="headerlink" href="#ivers-leaky-module" title="Link to this heading"></a></h2>
+</section>
+<section id="module-ivers.stratify">
+<span id="ivers-stratify-module"></span><h2>ivers.stratify module<a class="headerlink" href="#module-ivers.stratify" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="ivers.stratify.aggregate_dataframe">
+<span class="sig-prename descclassname"><span class="pre">ivers.stratify.</span></span><span class="sig-name descname"><span class="pre">aggregate_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smiles_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation_rules</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/ivers/stratify.html#aggregate_dataframe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ivers.stratify.aggregate_dataframe" title="Link to this definition"></a></dt>
+<dd><p>Aggregate the dataframe based on specified rules, excluding some columns.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>df: The original DataFrame to be aggregated.
+smiles_column: Name of the column containing SMILES strings for grouping.
+exclude_columns: List of column names to exclude from aggregation.
+aggregation_rules: Dictionary specifying how to aggregate columns.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Aggregated DataFrame.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ivers.stratify.create_stratify_key">
+<span class="sig-prename descclassname"><span class="pre">ivers.stratify.</span></span><span class="sig-name descname"><span class="pre">create_stratify_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ivers/stratify.html#create_stratify_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ivers.stratify.create_stratify_key" title="Link to this definition"></a></dt>
+<dd><p>Generate stratify key columns in the DataFrame based on the order of endpoint columns and an optional label column.
+Adds ‘StratifyKey’ for full stratification and ‘endpoint_stratify_key’ for endpoints only.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>df: DataFrame to operate on.
+order: Ordered list of endpoint columns.
+label_column: Optional column name to include in the stratify key for further grouping.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Tuple containing the modified DataFrame and a dictionary mapping original column names to their abbreviations.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ivers.stratify.extract_features">
+<span class="sig-prename descclassname"><span class="pre">ivers.stratify.</span></span><span class="sig-name descname"><span class="pre">extract_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smiles_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/ivers/stratify.html#extract_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ivers.stratify.extract_features" title="Link to this definition"></a></dt>
+<dd><p>Extract features from the DataFrame.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>df: The original DataFrame.
+smiles_column: Column name containing the SMILES strings.
+feature_columns: List of columns to be used as features.</p>
+</dd>
+<dt>Returns:</dt><dd><p>A DataFrame containing the SMILES and features.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ivers.stratify.split_dataframe">
+<span class="sig-prename descclassname"><span class="pre">ivers.stratify.</span></span><span class="sig-name descname"><span class="pre">split_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ivers/stratify.html#split_dataframe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ivers.stratify.split_dataframe" title="Link to this definition"></a></dt>
+<dd><p>Split the DataFrame into training and testing datasets, stratifying by ‘StratifyKey’.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>df: DataFrame to split.
+test_size: Proportion of the dataset to include in the test split.
+random_state: Random state for reproducibility.
+include_labels: Labels to exclusively include in the test dataset.
+exclude_labels: Labels to exclude from the test dataset.</p>
+</dd>
+<dt>Returns:</dt><dd><p>A tuple containing the training and testing datasets.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ivers.stratify.stratify_endpoint">
+<span class="sig-prename descclassname"><span class="pre">ivers.stratify.</span></span><span class="sig-name descname"><span class="pre">stratify_endpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smiles_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation_rules</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ivers/stratify.html#stratify_endpoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ivers.stratify.stratify_endpoint" title="Link to this definition"></a></dt>
+<dd><p>Manage the distribution of the DataFrame by aggregating, generating a stratify key with optional label considerations, and splitting into train/test datasets. Additionally returns column abbreviation mapping.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>df: The original DataFrame.
+order: Ordered list of endpoint columns for stratification.
+smiles_column: Column name containing the SMILES strings for aggregation grouping.
+exclude_columns: Columns to exclude from mean aggregation.
+aggregation_rules: Specific aggregation rules for some columns.
+test_size: Proportion of the dataset to include in the test split.
+random_state: Random state for reproducibility.
+label_column: Optional column for additional grouping in stratification.</p>
+</dd>
+<dt>Returns:</dt><dd><p>A tuple containing the training and testing datasets, and a dictionary of column abbreviations.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ivers.stratify.stratify_endpoint_cv">
+<span class="sig-prename descclassname"><span class="pre">ivers.stratify.</span></span><span class="sig-name descname"><span class="pre">stratify_endpoint_cv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smiles_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation_rules</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_splits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ivers/stratify.html#stratify_endpoint_cv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ivers.stratify.stratify_endpoint_cv" title="Link to this definition"></a></dt>
+<dd><p>Manage the distribution of the DataFrame by aggregating, generating a stratify key with optional label considerations, and performing k-fold cross-validation. Additionally returns column abbreviation mappings for each fold.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>df: The original DataFrame.
+order: Ordered list of endpoint columns for stratification.
+smiles_column: Column name containing the SMILES strings for aggregation grouping.
+exclude_columns: Columns to exclude from mean aggregation.
+aggregation_rules: Specific aggregation rules for some columns.
+n_splits: Number of folds for cross-validation.
+random_state: Random state for reproducibility.
+label_column: Optional column for additional grouping in stratification.</p>
+</dd>
+<dt>Returns:</dt><dd><p>A list of tuples, each containing the training and testing datasets for a fold, and a dictionary of column abbreviations.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ivers.stratify.stratify_split_and_cv">
+<span class="sig-prename descclassname"><span class="pre">ivers.stratify.</span></span><span class="sig-name descname"><span class="pre">stratify_split_and_cv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smiles_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation_rules</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_splits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chemprop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'./'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ivers/stratify.html#stratify_split_and_cv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ivers.stratify.stratify_split_and_cv" title="Link to this definition"></a></dt>
+<dd><p>Split the data into a test set and perform cross-validation on the remaining data, ensuring stratified distribution of the endpoints.
+The resulting dataframes will be saved at the specified path with suffixes for different folds.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>df: The original DataFrame.
+endpoints: Ordered list of endpoint columns for stratification.
+smiles_column: Column name containing the SMILES strings for aggregation grouping.
+exclude_columns: Columns to exclude from mean aggregation.
+aggregation_rules: Specific aggregation rules for some columns.
+test_size: Proportion of the dataset to include in the test split.
+n_splits: Number of folds for cross-validation.
+random_state: Random state for reproducibility.
+label_column: Optional column for additional grouping in stratification.
+chemprop: Boolean to indicate if data is for chemprop.
+save_path: Path to save the resulting dataframes.</p>
+</dd>
+<dt>Returns:</dt><dd><p>A tuple containing the test dataset, a list of tuples (each with training and validation datasets for a fold), and a dictionary of column abbreviations.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-ivers.temporal">
+<span id="ivers-temporal-module"></span><h2>ivers.temporal module<a class="headerlink" href="#module-ivers.temporal" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="ivers.temporal.allforfree_endpoint_split">
+<span class="sig-prename descclassname"><span class="pre">ivers.temporal.</span></span><span class="sig-name descname"><span class="pre">allforfree_endpoint_split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smiles_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ivers/temporal.html#allforfree_endpoint_split"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ivers.temporal.allforfree_endpoint_split" title="Link to this definition"></a></dt>
+<dd><p>Process a list of DataFrames by identifying test compounds and splitting each DataFrame based on a unified test compound list.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>df_list: List of DataFrames to be processed.
+split_size: Fraction of each DataFrame to include in the test set.
+smiles_column: Name of the column containing compound identifiers.
+date_column: Name of the column containing the dates of publication or experiment.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Tuple containing lists of training and testing DataFrames.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ivers.temporal.allforfree_folds_endpoint_split">
+<span class="sig-prename descclassname"><span class="pre">ivers.temporal.</span></span><span class="sig-name descname"><span class="pre">allforfree_folds_endpoint_split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_folds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smiles_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint_date_columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ivers/temporal.html#allforfree_folds_endpoint_split"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ivers.temporal.allforfree_folds_endpoint_split" title="Link to this definition"></a></dt>
+<dd><p>Process a DataFrame by splitting it into multiple train/test sets for cross-validation, with the training set growing progressively.
+Args:</p>
+<blockquote>
+<div><p>df: DataFrame to be processed.
+num_folds: Number of folds for cross-validation.
+smiles_column: Name of the column containing compound identifiers.
+endpoint_date_columns: Dictionary of endpoint names to their respective date columns.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>List of tuples containing training and testing DataFrames for each fold.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ivers.temporal.extract_features">
+<span class="sig-prename descclassname"><span class="pre">ivers.temporal.</span></span><span class="sig-name descname"><span class="pre">extract_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smiles_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/ivers/temporal.html#extract_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ivers.temporal.extract_features" title="Link to this definition"></a></dt>
+<dd><p>Extract features from the DataFrame.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>df: The original DataFrame.
+smiles_column: Column name containing the SMILES strings.
+feature_columns: List of columns to be used as features.</p>
+</dd>
+<dt>Returns:</dt><dd><p>A DataFrame containing the SMILES and features.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ivers.temporal.get_aggregation_rules">
+<span class="sig-prename descclassname"><span class="pre">ivers.temporal.</span></span><span class="sig-name descname"><span class="pre">get_aggregation_rules</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/ivers/temporal.html#get_aggregation_rules"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ivers.temporal.get_aggregation_rules" title="Link to this definition"></a></dt>
+<dd><p>Determine aggregation rules for the DataFrame columns based on their data types.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ivers.temporal.leaky_endpoint_split">
+<span class="sig-prename descclassname"><span class="pre">ivers.temporal.</span></span><span class="sig-name descname"><span class="pre">leaky_endpoint_split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smiles_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint_date_columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ivers/temporal.html#leaky_endpoint_split"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ivers.temporal.leaky_endpoint_split" title="Link to this definition"></a></dt>
+<dd><p>Process a DataFrame by identifying test compounds and splitting the DataFrame for multiple endpoints each with its own date column.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>df: DataFrame to be processed.
+split_size: Fraction of the DataFrame to include in the test set for each endpoint.
+smiles_column: Name of the column containing compound identifiers.
+endpoint_date_columns: Dictionary of endpoint names to their respective date columns.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Tuple containing the training and testing DataFrames.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ivers.temporal.leaky_folds_endpoint_split">
+<span class="sig-prename descclassname"><span class="pre">ivers.temporal.</span></span><span class="sig-name descname"><span class="pre">leaky_folds_endpoint_split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_folds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smiles_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint_date_columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chemprop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ivers/temporal.html#leaky_folds_endpoint_split"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ivers.temporal.leaky_folds_endpoint_split" title="Link to this definition"></a></dt>
+<dd><p>Process a DataFrame by splitting it into multiple train/test sets for cross-validation, with the training set growing progressively.
+The size of the test set decreases with each fold, increasing the training data size.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>df: DataFrame to be processed.
+num_folds: Number of folds for cross-validation.
+smiles_column: Name of the column containing compound identifiers.
+endpoint_date_columns: Dictionary of endpoint names to their respective date columns.
+chemprop: Boolean to indicate if data is for chemprop.
+save_path: Path to save the resulting dataframes.</p>
+</dd>
+<dt>Returns:</dt><dd><p>List of tuples containing training and testing DataFrames for each fold.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-ivers">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ivers" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

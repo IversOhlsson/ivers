@@ -1,3 +1,7 @@
 *.tar.gz
 *.whl
 *.egg-info
+*.doctree
+*.pyc
+/venv/*
+

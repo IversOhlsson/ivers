@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ivers.stratify &mdash; ivers 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=01f34227"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            ivers
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">ivers</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">ivers.stratify</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for ivers.stratify</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">DataFrame</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">StratifiedKFold</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> - </span><span class="si">%(levelname)s</span><span class="s1"> - </span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="aggregate_dataframe">
+<a class="viewcode-back" href="../../ivers.html#ivers.stratify.aggregate_dataframe">[docs]</a>
+<span class="k">def</span> <span class="nf">aggregate_dataframe</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">smiles_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">exclude_columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">aggregation_rules</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Aggregate the dataframe based on specified rules, excluding some columns.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df: The original DataFrame to be aggregated.</span>
+<span class="sd">        smiles_column: Name of the column containing SMILES strings for grouping.</span>
+<span class="sd">        exclude_columns: List of column names to exclude from aggregation.</span>
+<span class="sd">        aggregation_rules: Dictionary specifying how to aggregate columns.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Aggregated DataFrame.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">aggregation</span> <span class="o">=</span> <span class="p">{</span><span class="n">col</span><span class="p">:</span> <span class="s1">&#39;mean&#39;</span> <span class="k">if</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span> <span class="ow">in</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">]</span> <span class="ow">and</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exclude_columns</span> <span class="ow">and</span> <span class="n">col</span> <span class="o">!=</span> <span class="n">smiles_column</span> 
+                <span class="k">else</span> <span class="s1">&#39;first&#39;</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">}</span>
+    <span class="n">aggregation</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">aggregation_rules</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">smiles_column</span><span class="p">,</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">aggregation</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="create_stratify_key">
+<a class="viewcode-back" href="../../ivers.html#ivers.stratify.create_stratify_key">[docs]</a>
+<span class="k">def</span> <span class="nf">create_stratify_key</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">order</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">label_column</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate stratify key columns in the DataFrame based on the order of endpoint columns and an optional label column.</span>
+<span class="sd">    Adds &#39;StratifyKey&#39; for full stratification and &#39;endpoint_stratify_key&#39; for endpoints only.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df: DataFrame to operate on.</span>
+<span class="sd">        order: Ordered list of endpoint columns.</span>
+<span class="sd">        label_column: Optional column name to include in the stratify key for further grouping.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Tuple containing the modified DataFrame and a dictionary mapping original column names to their abbreviations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">col_abbreviations</span> <span class="o">=</span> <span class="p">{</span><span class="n">col</span><span class="p">:</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">65</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">order</span><span class="p">)}</span>
+    
+    <span class="c1"># Create endpoint_stratify_key which includes only the endpoint columns</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;endpoint_stratify_key&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">col_abbreviations</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">order</span> <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">notnull</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">])),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Create StratifyKey which includes both endpoints and the label column if present</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;StratifyKey&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;endpoint_stratify_key&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">label_column</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;StratifyKey&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;endpoint_stratify_key&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">label_column</span><span class="p">])</span> <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">notnull</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">label_column</span><span class="p">])</span> <span class="k">else</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;endpoint_stratify_key&#39;</span><span class="p">],</span>
+            <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="n">col_abbreviations</span></div>
+
+
+<div class="viewcode-block" id="split_dataframe">
+<a class="viewcode-back" href="../../ivers.html#ivers.stratify.split_dataframe">[docs]</a>
+<span class="k">def</span> <span class="nf">split_dataframe</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">test_size</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">random_state</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">DataFrame</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Split the DataFrame into training and testing datasets, stratifying by &#39;StratifyKey&#39;.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df: DataFrame to split.</span>
+<span class="sd">        test_size: Proportion of the dataset to include in the test split.</span>
+<span class="sd">        random_state: Random state for reproducibility.</span>
+<span class="sd">        include_labels: Labels to exclusively include in the test dataset.</span>
+<span class="sd">        exclude_labels: Labels to exclude from the test dataset.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A tuple containing the training and testing datasets.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">class_counts</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;StratifyKey&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+    <span class="n">small_classes</span> <span class="o">=</span> <span class="n">class_counts</span><span class="p">[</span><span class="n">class_counts</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
+    <span class="c1"># ----------------- Concat Small Classes ----------------- #</span>
+    <span class="k">if</span> <span class="n">small_classes</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Small classes found: </span><span class="si">{</span><span class="n">small_classes</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">, merging into a single class for stratification.&quot;</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;StratifyKey&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">small_classes</span><span class="p">),</span> <span class="s1">&#39;StratifyKey&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;ConcatSmall&#39;</span>
+    <span class="c1"># -------------------------------------------------------- #</span>
+
+    <span class="c1"># ----------------- Remove small classes ----------------- #</span>
+    <span class="c1">#df_filtered = df[~df[&#39;StratifyKey&#39;].isin(small_classes)]</span>
+    <span class="c1"># -------------------------------------------------------- #</span>
+
+    <span class="n">df_train</span><span class="p">,</span> <span class="n">df_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="n">test_size</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">,</span> <span class="n">stratify</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;StratifyKey&#39;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">df_train</span><span class="p">,</span> <span class="n">df_test</span></div>
+
+
+<div class="viewcode-block" id="stratify_endpoint">
+<a class="viewcode-back" href="../../ivers.html#ivers.stratify.stratify_endpoint">[docs]</a>
+<span class="k">def</span> <span class="nf">stratify_endpoint</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">order</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> 
+                        <span class="n">smiles_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+                        <span class="n">exclude_columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> 
+                        <span class="n">aggregation_rules</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> 
+                        <span class="n">test_size</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> 
+                        <span class="n">random_state</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span><span class="p">,</span> 
+                        <span class="n">label_column</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Manage the distribution of the DataFrame by aggregating, generating a stratify key with optional label considerations, and splitting into train/test datasets. Additionally returns column abbreviation mapping.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df: The original DataFrame.</span>
+<span class="sd">        order: Ordered list of endpoint columns for stratification.</span>
+<span class="sd">        smiles_column: Column name containing the SMILES strings for aggregation grouping.</span>
+<span class="sd">        exclude_columns: Columns to exclude from mean aggregation.</span>
+<span class="sd">        aggregation_rules: Specific aggregation rules for some columns.</span>
+<span class="sd">        test_size: Proportion of the dataset to include in the test split.</span>
+<span class="sd">        random_state: Random state for reproducibility.</span>
+<span class="sd">        label_column: Optional column for additional grouping in stratification.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        A tuple containing the training and testing datasets, and a dictionary of column abbreviations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df_processed</span> <span class="o">=</span> <span class="n">aggregate_dataframe</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">smiles_column</span><span class="p">,</span> <span class="n">exclude_columns</span><span class="p">,</span> <span class="n">aggregation_rules</span><span class="p">)</span>
+    <span class="n">df_processed</span><span class="p">,</span> <span class="n">col_abbreviations</span> <span class="o">=</span> <span class="n">create_stratify_key</span><span class="p">(</span><span class="n">df_processed</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">label_column</span><span class="p">)</span>
+    <span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span> <span class="o">=</span> <span class="n">split_dataframe</span><span class="p">(</span><span class="n">df_processed</span><span class="p">,</span> <span class="n">test_size</span><span class="p">,</span> <span class="n">random_state</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span><span class="p">,</span> <span class="n">col_abbreviations</span></div>
+
+
+<div class="viewcode-block" id="stratify_endpoint_cv">
+<a class="viewcode-back" href="../../ivers.html#ivers.stratify.stratify_endpoint_cv">[docs]</a>
+<span class="k">def</span> <span class="nf">stratify_endpoint_cv</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
+                         <span class="n">order</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> 
+                         <span class="n">smiles_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+                         <span class="n">exclude_columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> 
+                         <span class="n">aggregation_rules</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> 
+                         <span class="n">n_splits</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> 
+                         <span class="n">random_state</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span><span class="p">,</span> 
+                         <span class="n">label_column</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Manage the distribution of the DataFrame by aggregating, generating a stratify key with optional label considerations, and performing k-fold cross-validation. Additionally returns column abbreviation mappings for each fold.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df: The original DataFrame.</span>
+<span class="sd">        order: Ordered list of endpoint columns for stratification.</span>
+<span class="sd">        smiles_column: Column name containing the SMILES strings for aggregation grouping.</span>
+<span class="sd">        exclude_columns: Columns to exclude from mean aggregation.</span>
+<span class="sd">        aggregation_rules: Specific aggregation rules for some columns.</span>
+<span class="sd">        n_splits: Number of folds for cross-validation.</span>
+<span class="sd">        random_state: Random state for reproducibility.</span>
+<span class="sd">        label_column: Optional column for additional grouping in stratification.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        A list of tuples, each containing the training and testing datasets for a fold, and a dictionary of column abbreviations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df_processed</span> <span class="o">=</span> <span class="n">aggregate_dataframe</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">smiles_column</span><span class="p">,</span> <span class="n">exclude_columns</span><span class="p">,</span> <span class="n">aggregation_rules</span><span class="p">)</span>
+    <span class="n">df_processed</span><span class="p">,</span> <span class="n">col_abbreviations</span> <span class="o">=</span> <span class="n">create_stratify_key</span><span class="p">(</span><span class="n">df_processed</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">label_column</span><span class="p">)</span>
+    
+    <span class="n">skf</span> <span class="o">=</span> <span class="n">StratifiedKFold</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="n">n_splits</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
+    <span class="n">splits</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="k">for</span> <span class="n">train_index</span><span class="p">,</span> <span class="n">test_index</span> <span class="ow">in</span> <span class="n">skf</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">df_processed</span><span class="p">,</span> <span class="n">df_processed</span><span class="p">[</span><span class="s1">&#39;StratifyKey&#39;</span><span class="p">]):</span>
+        <span class="n">train_df</span> <span class="o">=</span> <span class="n">df_processed</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">train_index</span><span class="p">]</span>
+        <span class="n">test_df</span> <span class="o">=</span> <span class="n">df_processed</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">test_index</span><span class="p">]</span>
+        <span class="n">splits</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span><span class="p">,</span> <span class="n">col_abbreviations</span><span class="p">))</span>
+    
+    <span class="k">return</span> <span class="n">splits</span></div>
+
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">StratifiedKFold</span><span class="p">,</span> <span class="n">train_test_split</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span>
+
+<div class="viewcode-block" id="extract_features">
+<a class="viewcode-back" href="../../ivers.html#ivers.stratify.extract_features">[docs]</a>
+<span class="k">def</span> <span class="nf">extract_features</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">smiles_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">feature_columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract features from the DataFrame.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df: The original DataFrame.</span>
+<span class="sd">        smiles_column: Column name containing the SMILES strings.</span>
+<span class="sd">        feature_columns: List of columns to be used as features.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A DataFrame containing the SMILES and features.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">df</span><span class="p">[[</span><span class="n">smiles_column</span><span class="p">]</span> <span class="o">+</span> <span class="n">feature_columns</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="stratify_split_and_cv">
+<a class="viewcode-back" href="../../ivers.html#ivers.stratify.stratify_split_and_cv">[docs]</a>
+<span class="k">def</span> <span class="nf">stratify_split_and_cv</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
+                          <span class="n">endpoints</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> 
+                          <span class="n">smiles_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+                          <span class="n">exclude_columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> 
+                          <span class="n">aggregation_rules</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> 
+                          <span class="n">test_size</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> 
+                          <span class="n">n_splits</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> 
+                          <span class="n">random_state</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span><span class="p">,</span> 
+                          <span class="n">label_column</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                          <span class="n">chemprop</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                          <span class="n">save_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;./&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]],</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Split the data into a test set and perform cross-validation on the remaining data, ensuring stratified distribution of the endpoints.</span>
+<span class="sd">    The resulting dataframes will be saved at the specified path with suffixes for different folds.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df: The original DataFrame.</span>
+<span class="sd">        endpoints: Ordered list of endpoint columns for stratification.</span>
+<span class="sd">        smiles_column: Column name containing the SMILES strings for aggregation grouping.</span>
+<span class="sd">        exclude_columns: Columns to exclude from mean aggregation.</span>
+<span class="sd">        aggregation_rules: Specific aggregation rules for some columns.</span>
+<span class="sd">        test_size: Proportion of the dataset to include in the test split.</span>
+<span class="sd">        n_splits: Number of folds for cross-validation.</span>
+<span class="sd">        random_state: Random state for reproducibility.</span>
+<span class="sd">        label_column: Optional column for additional grouping in stratification.</span>
+<span class="sd">        chemprop: Boolean to indicate if data is for chemprop.</span>
+<span class="sd">        save_path: Path to save the resulting dataframes.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A tuple containing the test dataset, a list of tuples (each with training and validation datasets for a fold), and a dictionary of column abbreviations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df_processed</span> <span class="o">=</span> <span class="n">aggregate_dataframe</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">smiles_column</span><span class="p">,</span> <span class="n">exclude_columns</span><span class="p">,</span> <span class="n">aggregation_rules</span><span class="p">)</span>
+    <span class="n">df_processed</span><span class="p">,</span> <span class="n">col_abbreviations</span> <span class="o">=</span> <span class="n">create_stratify_key</span><span class="p">(</span><span class="n">df_processed</span><span class="p">,</span> <span class="n">endpoints</span><span class="p">,</span> <span class="n">label_column</span><span class="p">)</span>
+    
+    <span class="n">remaining_df</span><span class="p">,</span> <span class="n">test_df</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+        <span class="n">df_processed</span><span class="p">,</span> 
+        <span class="n">test_size</span><span class="o">=</span><span class="n">test_size</span><span class="p">,</span> 
+        <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">,</span> 
+        <span class="n">stratify</span><span class="o">=</span><span class="n">df_processed</span><span class="p">[</span><span class="s1">&#39;StratifyKey&#39;</span><span class="p">]</span>
+    <span class="p">)</span>
+    
+    <span class="n">skf</span> <span class="o">=</span> <span class="n">StratifiedKFold</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="n">n_splits</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
+    <span class="n">splits</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="k">for</span> <span class="n">fold</span><span class="p">,</span> <span class="p">(</span><span class="n">train_index</span><span class="p">,</span> <span class="n">val_index</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">skf</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">remaining_df</span><span class="p">,</span> <span class="n">remaining_df</span><span class="p">[</span><span class="s1">&#39;StratifyKey&#39;</span><span class="p">])):</span>
+        <span class="n">train_df</span> <span class="o">=</span> <span class="n">remaining_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">train_index</span><span class="p">]</span>
+        <span class="n">val_df</span> <span class="o">=</span> <span class="n">remaining_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">val_index</span><span class="p">]</span>
+        <span class="n">splits</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">train_df</span><span class="p">,</span> <span class="n">val_df</span><span class="p">))</span>
+        
+        <span class="c1"># Extracting and saving features and targets for Chemprop</span>
+        <span class="k">if</span> <span class="n">chemprop</span><span class="p">:</span>
+            <span class="n">feature_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exclude_columns</span> <span class="o">+</span> <span class="p">[</span><span class="n">smiles_column</span><span class="p">,</span> <span class="s1">&#39;StratifyKey&#39;</span><span class="p">]]</span>
+            <span class="n">train_features</span> <span class="o">=</span> <span class="n">extract_features</span><span class="p">(</span><span class="n">train_df</span><span class="p">,</span> <span class="n">smiles_column</span><span class="p">,</span> <span class="n">feature_columns</span><span class="p">)</span>
+            <span class="n">val_features</span> <span class="o">=</span> <span class="n">extract_features</span><span class="p">(</span><span class="n">val_df</span><span class="p">,</span> <span class="n">smiles_column</span><span class="p">,</span> <span class="n">feature_columns</span><span class="p">)</span>
+            <span class="n">train_targets</span> <span class="o">=</span> <span class="n">train_df</span><span class="p">[</span><span class="n">endpoints</span><span class="p">]</span>
+            <span class="n">val_targets</span> <span class="o">=</span> <span class="n">val_df</span><span class="p">[</span><span class="n">endpoints</span><span class="p">]</span>
+            
+            <span class="c1"># Save features and targets</span>
+            <span class="n">train_features</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;train_features_fold</span><span class="si">{</span><span class="n">fold</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">.csv&#39;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">val_features</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;val_features_fold</span><span class="si">{</span><span class="n">fold</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">.csv&#39;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">train_targets</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;train_targets_fold</span><span class="si">{</span><span class="n">fold</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">.csv&#39;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">val_targets</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;val_targets_fold</span><span class="si">{</span><span class="n">fold</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">.csv&#39;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">train_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;train_fold</span><span class="si">{</span><span class="n">fold</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">.csv&#39;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">val_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;val_fold</span><span class="si">{</span><span class="n">fold</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">.csv&#39;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">chemprop</span><span class="p">:</span>
+        <span class="n">test_features</span> <span class="o">=</span> <span class="n">extract_features</span><span class="p">(</span><span class="n">test_df</span><span class="p">,</span> <span class="n">smiles_column</span><span class="p">,</span> <span class="n">feature_columns</span><span class="p">)</span>
+        <span class="n">test_targets</span> <span class="o">=</span> <span class="n">test_df</span><span class="p">[</span><span class="n">endpoints</span><span class="p">]</span>
+        <span class="n">test_features</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="s1">&#39;test_features.csv&#39;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">test_targets</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="s1">&#39;test_targets.csv&#39;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">test_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="s1">&#39;test.csv&#39;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">test_df</span><span class="p">,</span> <span class="n">splits</span><span class="p">,</span> <span class="n">col_abbreviations</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
