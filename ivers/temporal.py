@@ -76,7 +76,7 @@ def allforfree_folds_endpoint_split(df: pd.DataFrame, num_folds: int, smiles_col
     return cv_splits
 
 
-def leaky_endpoint_split(df: DataFrame, split_size: float, smiles_column: str, endpoint_date_columns: Dict[str, str]) -> Tuple[DataFrame, DataFrame]:
+def leaky_endpoint_split(df: DataFrame, split_size: float, smiles_column: str, endpoint_date_columns: Dict[str, str], exclude_columns: List[str]) -> Tuple[DataFrame, DataFrame]:
     """
     Process a DataFrame by identifying test compounds and splitting the DataFrame for multiple endpoints each with its own date column.
 
@@ -117,7 +117,9 @@ def leaky_endpoint_split(df: DataFrame, split_size: float, smiles_column: str, e
     all_test_df = pd.concat(test_dfs, axis=0, ignore_index=True, sort=False)
 
     # Aggregation rules to apply
-    aggregation_rules = {col: 'mean' for col in all_train_df.columns if col != smiles_column}
+    aggregation_rules = {col: 'mean' if df[col].dtype in [np.float64, np.int64] and col not in exclude_columns and col != smiles_column 
+                else 'first' for col in df.columns}
+    aggregation_rules.update(aggregation_rules)
 
     # Group by SMILES and apply aggregation
     all_train_df = all_train_df.groupby(smiles_column, as_index=False).agg(aggregation_rules)
@@ -125,8 +127,28 @@ def leaky_endpoint_split(df: DataFrame, split_size: float, smiles_column: str, e
 
     return all_train_df, all_test_df
 
+# ------------------------------------ #
+# with chemprop compatibility          #
+# ------------------------------------ #
+import os
 
-def leaky_folds_endpoint_split(df: DataFrame, num_folds: int, smiles_column: str, endpoint_date_columns: Dict[str, str]) -> List[Tuple[DataFrame, DataFrame]]:
+def extract_features(df: pd.DataFrame, smiles_column: str, feature_columns: List[str]) -> pd.DataFrame:
+    """
+    Extract features from the DataFrame.
+
+    Args:
+        df: The original DataFrame.
+        smiles_column: Column name containing the SMILES strings.
+        feature_columns: List of columns to be used as features.
+
+    Returns:
+        A DataFrame containing the SMILES and features.
+    """
+    return df[[smiles_column] + feature_columns]
+
+
+
+def leaky_folds_endpoint_split(df: DataFrame, num_folds: int, smiles_column: str, endpoint_date_columns: Dict[str, str], exclude_columns: List[str], chemprop: bool, save_path: str) -> List[Tuple[DataFrame, DataFrame]]:
     """
     Process a DataFrame by splitting it into multiple train/test sets for cross-validation, with the training set growing progressively.
     The size of the test set decreases with each fold, increasing the training data size.
@@ -136,20 +158,36 @@ def leaky_folds_endpoint_split(df: DataFrame, num_folds: int, smiles_column: str
         num_folds: Number of folds for cross-validation.
         smiles_column: Name of the column containing compound identifiers.
         endpoint_date_columns: Dictionary of endpoint names to their respective date columns.
+        chemprop: Boolean to indicate if data is for chemprop.
+        save_path: Path to save the resulting dataframes.
 
     Returns:
         List of tuples containing training and testing DataFrames for each fold.
     """
-
-    cv_splits = []
+    splits = []
 
     for fold in range(1, num_folds + 1):
         split_size = 1 - (fold / num_folds)  # Decrease the test size progressively
 
         # Use the leaky_endpoint_split function to generate each fold's split
-        train_df, test_df = leaky_endpoint_split(df, split_size, smiles_column, endpoint_date_columns)
+        train_df, test_df = leaky_endpoint_split(df, split_size, smiles_column, endpoint_date_columns, exclude_columns)
+        
+        if chemprop:
+            feature_columns = [col for col in df.columns if col not in [smiles_column, *endpoint_date_columns.keys(), *endpoint_date_columns.values(), *exclude_columns]]
+            train_features = extract_features(train_df, smiles_column, feature_columns)
+            test_features = extract_features(test_df, smiles_column, feature_columns)
+            train_targets = train_df[list(endpoint_date_columns.keys())]
+            test_targets = test_df[list(endpoint_date_columns.keys())]
 
-        # Append the current fold's train and test DataFrames to the list
-        cv_splits.append((train_df, test_df))
+            # Save features and targets
+            train_features.to_csv(os.path.join(save_path, f'train_features_fold{fold}.csv'), index=False)
+            test_features.to_csv(os.path.join(save_path, f'test_features_fold{fold}.csv'), index=False)
+            train_targets.to_csv(os.path.join(save_path, f'train_targets_fold{fold}.csv'), index=False)
+            test_targets.to_csv(os.path.join(save_path, f'test_targets_fold{fold}.csv'), index=False)
+        else:
+            train_df.to_csv(os.path.join(save_path, f'train_fold{fold}.csv'), index=False)
+            test_df.to_csv(os.path.join(save_path, f'test_fold{fold}.csv'), index=False)
 
-    return cv_splits
+        splits.append((train_df, test_df))
+
+    return splits
