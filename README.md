@@ -6,10 +6,10 @@ This project offers tools for managing data splits, ensuring endpoint distributi
 **Note**: This library was used in this paper [PlaceHolder](https://github.com/IversOhlsson/ivers) to generate data splits for the Chemprop library.
 
 ## Features
-  - **Temporal Leaky**: Allows for forward-leakage in your data to simulate real-world scenarios where future data might influence the model subtly.
-  - **Temporal AllForFree**: Provides a stricter temporal separation, ensuring that the training data is entirely independent of the test set, suitable for rigorous testing of model predictions over time.
-  - **Temporal Fold Split**: Implements a novel approach to increasing the training set size successively across multiple folds based on the temporal time sequence
-  - **Stratified Endpoint Split**: Our library introduces a stratified endpoint split, crucial for maintaining a consistent distribution of data across different categories or endpoints in your datasets. Especially useful in scenarios where endpoint distributions are critical, such as in cheminformatics and bioinformatics.
+  - **Temporal Leaky**: This approach offers a more relaxed temporal separation, permitting a slight overlap between the training and test sets for different endpoints, allowing the model to be trained and tested on the same compound but for different endpoints, with each endpoint receiving x% of data. This setup closely simulates real-world scenarios where a model might access one endpoint before another.
+  - **Temporal AllForFree**:  Initially, we add x% of data for each endpoint. Subsequently, if any endpoint for a compound has been added, we include all remaining endpoints for that compound.
+  - **Temporal Fold Split**: Available for both leaky and allforfree where we split the data into folds, ensuring that each fold maintains the selected temporal separation between the training and test sets. In this approach, we gradually increase the size of the training set by moving the pointer that separates the test and train data.
+  - **Stratified Endpoint Split**: Our library introduces a stratified endpoint split, crucial for maintaining a consistent distribution of data across different categories or endpoints in your datasets. Especially useful in scenarios where endpoint distributions are critical or where dataset might be imbalanced such as in chemoinformatics.
   - **Cross-Validation Support**: Integrates capabilities to ensure that each cross-validation split maintains endpoint distribution, ideal for developing models that are generalizable across varied data conditions.
 
 ## Integration with Chemprop
@@ -27,7 +27,7 @@ pip install -r requirements.txt
 ```
 
 ## Installation via pip
-You can also install the package via pip:
+install the package via pip:
 ```bash
 pip install ivers
 ```
