@@ -1,3 +1,10 @@
 *.tar.gz
 *.whl
 *.egg-info
+/venv
+/docs
+/docs/build
+/build
+*.pyc
+/build
+/ivers/__pycache__

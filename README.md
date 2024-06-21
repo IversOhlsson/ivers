@@ -3,7 +3,7 @@
 
 This project offers tools for managing data splits, ensuring endpoint distributions are maintained, and presents two novel temporal split techniques: 'leaky' and 'all for free' splits. See the explanation below. 
 
-**Note**: This library was used in this paper [PlaceHolder](https://github.com/IversOhlsson/ivers) to generate data splits for the Chemprop library.
+**Note**: This library was used in this paper [PlaceHolder](https://github.com/IversOhlsson/ivers) to generate the data splits.
 
 ## Features
   - **Temporal Leaky**: Allows for forward-leakage in your data to simulate real-world scenarios where future data might influence the model subtly.
@@ -33,3 +33,19 @@ pip install ivers
 ```
 We welcome contributions! Feel free to open issues or pull requests on our GitHub repository.
 
+## Guide
+
+## Reference
+when using this library, please cite the following paper:
+```
+@article{Ivers_1,
+  title={PlaceHolder},
+  author={PlaceHolder},
+  journal={PlaceHolder},
+  volume={PlaceHolder},
+  number={PlaceHolder},
+  pages={PlaceHolder},
+  year={PlaceHolder},
+  publisher={PlaceHolder}
+}
+```

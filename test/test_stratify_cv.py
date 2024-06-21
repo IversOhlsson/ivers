@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from typing import List, Dict, Tuple, Optional
 from ivers.stratify import stratify_endpoint_cv, stratify_split_and_cv
+
 class TestStratifyFunctions(unittest.TestCase):
 
     @staticmethod
