@@ -2,9 +2,9 @@ from setuptools import setup, find_packages
 
 setup(
     name='ivers',
-    version='0.1',
+    version='0.1.2',
     packages=find_packages(),
-    description='Python package to stratify split datasets based on endpoint distributions',
+    description='Python package to stratify split datasets based on endpoint distributions, also 2 different temporal splits. Chemprop compatible.',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     author='Philip Ivers Ohlsson',
@@ -15,8 +15,9 @@ setup(
         'scikit-learn'
     ],
     classifiers=[
-        'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
+                'Intended Audience :: Science/Research',
+
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
@@ -25,6 +26,11 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
     ],
+    keywords='chemprop chemistry data science dataset splitting stratification temporal splits ivers',
+    project_urls={
+        'Documentation': 'http://github.com/iversohlsson/ivers/docs/_build/html/index.html',
+        'Source': 'http://github.com/iversohlsson/ivers',
+    },
 )
 from setuptools import setup, find_packages
 
