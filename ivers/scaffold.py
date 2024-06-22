@@ -87,7 +87,7 @@ def balanced_scaffold_cv(df: pd.DataFrame,
                          smiles_column: str, 
                          n_splits: int, 
                          random_state: int = 42,
-                         feature_columns: Optional[List[str]] = [],
+                         feature_columns: List[str] = None,
                          exclude_columns: List[str] = [], 
                          chemprop: bool = False,
                          save_path: str = './') -> Tuple[pd.DataFrame, List[Tuple[pd.DataFrame, pd.DataFrame]], Dict[str, int]]:
@@ -126,6 +126,8 @@ def balanced_scaffold_cv(df: pd.DataFrame,
                 test_targets = test_df[endpoints]
 
                 # Save features and targets
+                train_features[smiles_column] = train_df[smiles_column]
+                test_features[smiles_column] = test_df[smiles_column]
                 train_features.to_csv(os.path.join(save_path, f'train_features_fold{i+1}.csv'), index=False)
                 test_features.to_csv(os.path.join(save_path, f'test_features_fold{i+1}.csv'), index=False)
                 train_targets.to_csv(os.path.join(save_path, f'train_targets_fold{i+1}.csv'), index=False)

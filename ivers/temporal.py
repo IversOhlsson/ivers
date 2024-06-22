@@ -56,7 +56,7 @@ def allforfree_endpoint_split(df_list: List[pd.DataFrame], split_size: float, sm
     
     return train_dfs, test_dfs
 
-def allforfree_folds_endpoint_split(df: pd.DataFrame, num_folds: int, smiles_column: str, endpoint_date_columns: Dict[str, str], exclude_columns: List[str], chemprop: bool, save_path: str) -> List[Tuple[pd.DataFrame, pd.DataFrame]]:
+def allforfree_folds_endpoint_split(df: pd.DataFrame, num_folds: int, smiles_column: str, endpoint_date_columns: Dict[str, str],feature_columns:List[str]=None, exclude_columns: List[str], chemprop: bool, save_path: str) -> List[Tuple[pd.DataFrame, pd.DataFrame]]:
     """
     Process a DataFrame by splitting it into multiple train/test sets for cross-validation, with the training set growing progressively.
     
@@ -65,6 +65,7 @@ def allforfree_folds_endpoint_split(df: pd.DataFrame, num_folds: int, smiles_col
         num_folds: Number of folds for cross-validation.
         smiles_column: Name of the column containing compound identifiers.
         endpoint_date_columns: Dictionary of endpoint names to their respective date columns.
+        feature_columns: List of columns to be used as features.
         exclude_columns: List of columns to exclude from aggregation rules.
         chemprop: Boolean to indicate if data is for chemprop.
         save_path: Path to save the resulting dataframes.
@@ -78,7 +79,8 @@ def allforfree_folds_endpoint_split(df: pd.DataFrame, num_folds: int, smiles_col
         train_df, test_df = allforfree_endpoint_split(df, split_size, smiles_column, endpoint_date_columns)
         
         if chemprop:
-            feature_columns = [col for col in df.columns if col not in [smiles_column, *endpoint_date_columns.keys(), *endpoint_date_columns.values(), *exclude_columns]]
+            if feature_columns is None:
+                feature_columns = [col for col in df.columns if col not in [smiles_column, *endpoint_date_columns.keys(), *endpoint_date_columns.values(), *exclude_columns]]
             train_features = extract_features(train_df, smiles_column, feature_columns)
             test_features = extract_features(test_df, smiles_column, feature_columns)
             train_targets = train_df[list(endpoint_date_columns.keys())]
@@ -97,7 +99,11 @@ def allforfree_folds_endpoint_split(df: pd.DataFrame, num_folds: int, smiles_col
 
     return cv_splits
 
-def leaky_endpoint_split(df: DataFrame, split_size: float, smiles_column: str, endpoint_date_columns: Dict[str, str], exclude_columns: List[str]) -> Tuple[DataFrame, DataFrame]:
+def leaky_endpoint_split(df: DataFrame, 
+                         split_size: float, 
+                         smiles_column: str, 
+                         endpoint_date_columns: Dict[str, str],
+                         exclude_columns: List[str]) -> Tuple[DataFrame, DataFrame]:
     """
     Process a DataFrame by identifying test compounds and splitting the DataFrame for multiple endpoints each with its own date column.
 
@@ -106,6 +112,7 @@ def leaky_endpoint_split(df: DataFrame, split_size: float, smiles_column: str, e
         split_size: Fraction of the DataFrame to include in the test set for each endpoint.
         smiles_column: Name of the column containing compound identifiers.
         endpoint_date_columns: Dictionary of endpoint names to their respective date columns.
+        feature_columns: List of columns to be used as features.
 
     Returns:
         Tuple containing the training and testing DataFrames.
@@ -165,7 +172,12 @@ def extract_features(df: pd.DataFrame, smiles_column: str, feature_columns: List
     """
     return df[[smiles_column] + feature_columns]
 
-def leaky_folds_endpoint_split(df: DataFrame, num_folds: int, smiles_column: str, endpoint_date_columns: Dict[str, str], exclude_columns: List[str], chemprop: bool, save_path: str) -> List[Tuple[DataFrame, DataFrame]]:
+def leaky_folds_endpoint_split(df: DataFrame, 
+                               num_folds: int, 
+                               smiles_column: str,
+                               endpoint_date_columns: Dict[str, str], 
+                               feature_columns: List[str],
+                               exclude_columns: List[str], chemprop: bool, save_path: str) -> List[Tuple[DataFrame, DataFrame]]:
     """
     Process a DataFrame by splitting it into multiple train/test sets for cross-validation, with the training set growing progressively.
     The size of the test set decreases with each fold, increasing the training data size.
@@ -175,6 +187,8 @@ def leaky_folds_endpoint_split(df: DataFrame, num_folds: int, smiles_column: str
         num_folds: Number of folds for cross-validation.
         smiles_column: Name of the column containing compound identifiers.
         endpoint_date_columns: Dictionary of endpoint names to their respective date columns.
+        feature_columns: List of columns to be used as features.
+        exclude_columns: List of columns to exclude from aggregation rules.
         chemprop: Boolean to indicate if data is for chemprop.
         save_path: Path to save the resulting dataframes.
 
@@ -191,7 +205,8 @@ def leaky_folds_endpoint_split(df: DataFrame, num_folds: int, smiles_column: str
         train_df, test_df = leaky_endpoint_split(df, split_size, smiles_column, endpoint_date_columns, exclude_columns)
         
         if chemprop:
-            feature_columns = [col for col in df.columns if col not in [smiles_column, *endpoint_date_columns.keys(), *endpoint_date_columns.values(), *exclude_columns]]
+            if feature_columns is None:
+                feature_columns = [col for col in df.columns if col not in [smiles_column, *endpoint_date_columns.keys(), *endpoint_date_columns.values(), *exclude_columns]]
             train_features = extract_features(train_df, smiles_column, feature_columns)
             test_features = extract_features(test_df, smiles_column, feature_columns)
             train_targets = train_df[list(endpoint_date_columns.keys())]
