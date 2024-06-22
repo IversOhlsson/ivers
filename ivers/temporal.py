@@ -85,6 +85,9 @@ def allforfree_folds_endpoint_split(df: pd.DataFrame, num_folds: int, smiles_col
             test_features = extract_features(test_df, smiles_column, feature_columns)
             train_targets = train_df[list(endpoint_date_columns.keys())]
             test_targets = test_df[list(endpoint_date_columns.keys())]
+            # add smiles column to targets
+            train_targets[smiles_column] = train_df[smiles_column]
+            test_targets[smiles_column] = test_df[smiles_column]
 
             # Save features and targets
             train_features.to_csv(os.path.join(save_path, f'train_features_fold{fold}.csv'), index=False)
@@ -211,6 +214,9 @@ def leaky_folds_endpoint_split(df: DataFrame,
             test_features = extract_features(test_df, smiles_column, feature_columns)
             train_targets = train_df[list(endpoint_date_columns.keys())]
             test_targets = test_df[list(endpoint_date_columns.keys())]
+            # add the smiles column to the targets
+            train_targets[smiles_column] = train_df[smiles_column]
+            test_targets[smiles_column] = test_df[smiles_column]
 
             # Save features and targets
             train_features.to_csv(os.path.join(save_path, f'train_features_fold{fold}.csv'), index=False)

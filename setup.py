@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='ivers',
-    version='0.1.5',
+    version='0.1.6',
     packages=find_packages(),
     description='Python package to stratify split datasets based on endpoint distributions, also 2 different temporal splits. Chemprop compatible.',
     long_description=open('README.md').read(),
