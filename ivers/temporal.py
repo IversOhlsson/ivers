@@ -56,7 +56,7 @@ def allforfree_endpoint_split(df_list: List[pd.DataFrame], split_size: float, sm
     
     return train_dfs, test_dfs
 
-def allforfree_folds_endpoint_split(df: pd.DataFrame, num_folds: int, smiles_column: str, endpoint_date_columns: Dict[str, str],feature_columns:List[str]=None, exclude_columns: List[str], chemprop: bool, save_path: str) -> List[Tuple[pd.DataFrame, pd.DataFrame]]:
+def allforfree_folds_endpoint_split(df: pd.DataFrame, num_folds: int, smiles_column: str, endpoint_date_columns: Dict[str, str],feature_columns:List[str]=None, exclude_columns: List[str]=None, chemprop: bool=False, save_path: str = './') -> List[Tuple[pd.DataFrame, pd.DataFrame]]:
     """
     Process a DataFrame by splitting it into multiple train/test sets for cross-validation, with the training set growing progressively.
     
