@@ -80,7 +80,7 @@ def extract_features(df: pd.DataFrame, smiles_column: str, feature_columns: List
     Returns:
         A DataFrame containing the SMILES and features.
     """
-    return df[[smiles_column] + feature_columns]
+    return df[feature_columns]
 
 def balanced_scaffold_cv(df: pd.DataFrame, 
                          endpoints: List[str], 
@@ -122,19 +122,18 @@ def balanced_scaffold_cv(df: pd.DataFrame,
 
                 train_features = extract_features(train_df, smiles_column, feature_columns)
                 test_features = extract_features(test_df, smiles_column, feature_columns)
-                train_targets = train_df[endpoints]
-                test_targets = test_df[endpoints]
+                train_targets = train_df[endpoints + [smiles_column]]
+                test_targets = test_df[endpoints + [smiles_column]]
+                # add the smiles column to the targets
 
                 # Save features and targets
-                train_features[smiles_column] = train_df[smiles_column]
-                test_features[smiles_column] = test_df[smiles_column]
-                train_features.to_csv(os.path.join(save_path, f'train_features_fold{i+1}.csv'), index=False)
-                test_features.to_csv(os.path.join(save_path, f'test_features_fold{i+1}.csv'), index=False)
-                train_targets.to_csv(os.path.join(save_path, f'train_targets_fold{i+1}.csv'), index=False)
-                test_targets.to_csv(os.path.join(save_path, f'test_targets_fold{i+1}.csv'), index=False)
+                train_features.to_csv(os.path.join(save_path, f'train_features_fold{i+1}.csv'), index=False, index_label=False)
+                test_features.to_csv(os.path.join(save_path, f'test_features_fold{i+1}.csv'), index=False, index_label=False)
+                train_targets.to_csv(os.path.join(save_path, f'train_targets_fold{i+1}.csv'), index=False, index_label=False)
+                test_targets.to_csv(os.path.join(save_path, f'test_targets_fold{i+1}.csv'), index=False, index_label=False)
             else:
-                train_df.to_csv(os.path.join(save_path, f'train_fold{i+1}.csv'), index=False)
-                test_df.to_csv(os.path.join(save_path, f'test_fold{i+1}.csv'), index=False)
+                train_df.to_csv(os.path.join(save_path, f'train_fold{i+1}.csv'), index=False, index_label=False)
+                test_df.to_csv(os.path.join(save_path, f'test_fold{i+1}.csv'), index=False, index_label=False)
 
     return df, results, {i: len(fold) for i, fold in enumerate(folds_indices)}
 

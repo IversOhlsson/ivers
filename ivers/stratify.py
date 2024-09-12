@@ -176,7 +176,7 @@ def extract_features(df: pd.DataFrame, smiles_column: str, feature_columns: List
     Returns:
         A DataFrame containing the SMILES and features.
     """
-    return df[[smiles_column] + feature_columns]
+    return df[feature_columns]
 
 def stratify_split_and_cv(df: pd.DataFrame, 
                           endpoints: List[str], 
@@ -245,22 +245,24 @@ def stratify_split_and_cv(df: pd.DataFrame,
             val_features = extract_features(val_df, smiles_column, feature_columns)
             train_targets = train_df[endpoints]
             val_targets = val_df[endpoints]
+            train_targets.replace('', np.nan, inplace=True)
+            val_targets.replace('', np.nan, inplace=True)
             
             # Save features and targets
-            train_features.to_csv(os.path.join(save_path, f'train_features_fold{fold+1}.csv'), index=False)
-            val_features.to_csv(os.path.join(save_path, f'val_features_fold{fold+1}.csv'), index=False)
-            train_targets.to_csv(os.path.join(save_path, f'train_targets_fold{fold+1}.csv'), index=False)
-            val_targets.to_csv(os.path.join(save_path, f'val_targets_fold{fold+1}.csv'), index=False)
+            train_features.to_csv(os.path.join(save_path, f'train_features_fold{fold+1}.csv'), index=False, index_label=False)
+            val_features.to_csv(os.path.join(save_path, f'val_features_fold{fold+1}.csv'), index=False, index_label=False)
+            train_targets.to_csv(os.path.join(save_path, f'train_targets_fold{fold+1}.csv'), index=False, index_label=False)
+            val_targets.to_csv(os.path.join(save_path, f'val_targets_fold{fold+1}.csv'), index=False, index_label=False)
         else:
-            train_df.to_csv(os.path.join(save_path, f'train_fold{fold+1}.csv'), index=False)
-            val_df.to_csv(os.path.join(save_path, f'val_fold{fold+1}.csv'), index=False)
+            train_df.to_csv(os.path.join(save_path, f'train_fold{fold+1}.csv'), index=False, index_label=False)
+            val_df.to_csv(os.path.join(save_path, f'val_fold{fold+1}.csv'), index=False, index_label=False)
     
     if chemprop:
         test_features = extract_features(test_df, smiles_column, feature_columns)
         test_targets = test_df[endpoints]
-        test_features.to_csv(os.path.join(save_path, 'test_features.csv'), index=False)
-        test_targets.to_csv(os.path.join(save_path, 'test_targets.csv'), index=False)
+        test_features.to_csv(os.path.join(save_path, 'test_features.csv'), index=False, index_label=False)
+        test_targets.to_csv(os.path.join(save_path, 'test_targets.csv'), index=False, index_label=False)
     else:
-        test_df.to_csv(os.path.join(save_path, 'test.csv'), index=False)
+        test_df.to_csv(os.path.join(save_path, 'test.csv'), index=False, index_label=False)
     
     return test_df, splits, col_abbreviations

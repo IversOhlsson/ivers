@@ -15,46 +15,35 @@ def get_aggregation_rules(df: DataFrame, exclude_columns: List[str]) -> dict:
             for col in df.columns if col not in exclude_columns}
 
 
-def allforfree_endpoint_split(df_list: List[pd.DataFrame], split_size: float, smiles_column: str, date_column: str) -> Tuple[List[pd.DataFrame], List[pd.DataFrame]]:
+def allforfree_endpoint_split(df: pd.DataFrame, split_size: float, smiles_column: str, endpoint_date_columns: Dict[str, str]) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Process a list of DataFrames by identifying test compounds and splitting each DataFrame based on a unified test compound list.
+    Process a DataFrame by identifying test compounds for different endpoints and splitting the DataFrame based on a unified test compound list.
     
     Args:
-        df_list: List of DataFrames to be processed.
-        split_size: Fraction of each DataFrame to include in the test set.
+        df: DataFrame to be processed.
+        split_size: Fraction of each endpoint's data to include in the test set.
         smiles_column: Name of the column containing compound identifiers.
-        date_column: Name of the column containing the dates of publication or experiment.
+        endpoint_date_columns: Dictionary of endpoints and their respective date columns.
     
     Returns:
-        Tuple containing lists of training and testing DataFrames.
+        Tuple containing the training and testing DataFrames.
     """
     all_test_compounds = set()
-    initial_test_compounds_counts = []
     
-    # First pass: Identify all test compounds across DataFrames
-    for df in df_list:
-        test_size = int(len(df) * split_size)
-        df[date_column] = pd.to_datetime(df[date_column])
-        df_sorted = df.sort_values(by=date_column, ascending=False)
-        new_test_compounds = set(df_sorted.iloc[:test_size][smiles_column].unique())
-        initial_test_compounds_counts.append(len(new_test_compounds))
+    # First pass: Identify all test compounds across different endpoints in the DataFrame
+    for endpoint, date_column in endpoint_date_columns.items():
+        endpoint_df = df[df[endpoint].notnull()].copy()
+        test_size = int(len(endpoint_df) * split_size)
+        endpoint_df[date_column] = pd.to_datetime(endpoint_df[date_column])
+        endpoint_df_sorted = endpoint_df.sort_values(by=date_column, ascending=False)
+        new_test_compounds = set(endpoint_df_sorted.iloc[:test_size][smiles_column].unique())
         all_test_compounds.update(new_test_compounds)
     
-    # Second pass: Split DataFrames into training and testing using the unified test compound set
-    train_dfs = []
-    test_dfs = []
-    for df in df_list:
-        df_test = df[df[smiles_column].isin(all_test_compounds)]
-        df_train = df[~df[smiles_column].isin(all_test_compounds)]
-        train_dfs.append(df_train)
-        test_dfs.append(df_test)
+    # Split the main DataFrame into training and testing using the unified test compound set
+    df_test = df[df[smiles_column].isin(all_test_compounds)]
+    df_train = df[~df[smiles_column].isin(all_test_compounds)]
     
-    # Optionally print additional info for each DataFrame
-    for i, (train_df, test_df) in enumerate(zip(train_dfs, test_dfs)):
-        additional_compounds = len(test_df) - initial_test_compounds_counts[i]
-        print(f"DataFrame {i}: Additional compounds due to unified test set = {additional_compounds}, Training set size = {len(train_df)}, Test set size = {len(test_df)}")
-    
-    return train_dfs, test_dfs
+    return df_train, df_test
 
 def allforfree_folds_endpoint_split(df: pd.DataFrame, num_folds: int, smiles_column: str, endpoint_date_columns: Dict[str, str],feature_columns:List[str]=None, exclude_columns: List[str]=None, chemprop: bool=False, save_path: str = './') -> List[Tuple[pd.DataFrame, pd.DataFrame]]:
     """
@@ -88,15 +77,17 @@ def allforfree_folds_endpoint_split(df: pd.DataFrame, num_folds: int, smiles_col
             # add smiles column to targets
             train_targets[smiles_column] = train_df[smiles_column]
             test_targets[smiles_column] = test_df[smiles_column]
-
+            train_targets.replace('', np.nan, inplace=True)
+            test_targets.replace('', np.nan, inplace=True)
+            
             # Save features and targets
-            train_features.to_csv(os.path.join(save_path, f'train_features_fold{fold}.csv'), index=False)
-            test_features.to_csv(os.path.join(save_path, f'test_features_fold{fold}.csv'), index=False)
-            train_targets.to_csv(os.path.join(save_path, f'train_targets_fold{fold}.csv'), index=False)
-            test_targets.to_csv(os.path.join(save_path, f'test_targets_fold{fold}.csv'), index=False)
+            train_features.to_csv(os.path.join(save_path, f'train_features_fold{fold}.csv'), index=False, index_label=False)
+            test_features.to_csv(os.path.join(save_path, f'test_features_fold{fold}.csv'), index=False, index_label=False)
+            train_targets.to_csv(os.path.join(save_path, f'train_targets_fold{fold}.csv'), index=False, index_label=False)
+            test_targets.to_csv(os.path.join(save_path, f'test_targets_fold{fold}.csv'), index=False, index_label=False)
         else:
-            train_df.to_csv(os.path.join(save_path, f'train_fold{fold}.csv'), index=False)
-            test_df.to_csv(os.path.join(save_path, f'test_fold{fold}.csv'), index=False)
+            train_df.to_csv(os.path.join(save_path, f'train_fold{fold}.csv'), index=False, index_label=False)
+            test_df.to_csv(os.path.join(save_path, f'test_fold{fold}.csv'), index=False, index_label=False)
 
         cv_splits.append((train_df, test_df))
 
@@ -173,7 +164,8 @@ def extract_features(df: pd.DataFrame, smiles_column: str, feature_columns: List
     Returns:
         A DataFrame containing the SMILES and features.
     """
-    return df[[smiles_column] + feature_columns]
+    return df[feature_columns]
+
 
 def leaky_folds_endpoint_split(df: DataFrame, 
                                num_folds: int, 
@@ -217,15 +209,17 @@ def leaky_folds_endpoint_split(df: DataFrame,
             # add the smiles column to the targets
             train_targets[smiles_column] = train_df[smiles_column]
             test_targets[smiles_column] = test_df[smiles_column]
+            train_targets.replace('', np.nan, inplace=True)
+            test_targets.replace('', np.nan, inplace=True)
 
             # Save features and targets
-            train_features.to_csv(os.path.join(save_path, f'train_features_fold{fold}.csv'), index=False)
-            test_features.to_csv(os.path.join(save_path, f'test_features_fold{fold}.csv'), index=False)
-            train_targets.to_csv(os.path.join(save_path, f'train_targets_fold{fold}.csv'), index=False)
-            test_targets.to_csv(os.path.join(save_path, f'test_targets_fold{fold}.csv'), index=False)
+            train_features.to_csv(os.path.join(save_path, f'train_features_fold{fold}.csv'), index=False, index_label=False)
+            test_features.to_csv(os.path.join(save_path, f'test_features_fold{fold}.csv'), index=False, index_label=False)
+            train_targets.to_csv(os.path.join(save_path, f'train_targets_fold{fold}.csv'), index=False, index_label=False)
+            test_targets.to_csv(os.path.join(save_path, f'test_targets_fold{fold}.csv'), index=False, index_label=False)
         else:
-            train_df.to_csv(os.path.join(save_path, f'train_fold{fold}.csv'), index=False)
-            test_df.to_csv(os.path.join(save_path, f'test_fold{fold}.csv'), index=False)
+            train_df.to_csv(os.path.join(save_path, f'train_fold{fold}.csv'), index=False, index_label=False)
+            test_df.to_csv(os.path.join(save_path, f'test_fold{fold}.csv'), index=False, index_label=False)
 
         splits.append((train_df, test_df))
 
