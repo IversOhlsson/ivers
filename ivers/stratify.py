@@ -1,3 +1,14 @@
+"""
+Filename: stratify.py
+
+Function "stratify_endpoint" for generate train / test taking into account endpoint distribution 
+
+Function "stratify_split_and_cv" for generate cross-validation that takes into account the endpoint distribution 
+
+Author: Philip Ivers Ohlsson
+License: MIT License
+"""
+
 import pandas as pd
 from pandas import DataFrame
 from sklearn.model_selection import train_test_split
@@ -176,7 +187,7 @@ def extract_features(df: pd.DataFrame, smiles_column: str, feature_columns: List
     Returns:
         A DataFrame containing the SMILES and features.
     """
-    return df[feature_columns]
+    return df[[smiles_column] + feature_columns]
 
 def stratify_split_and_cv(df: pd.DataFrame, 
                           endpoints: List[str], 
@@ -189,7 +200,7 @@ def stratify_split_and_cv(df: pd.DataFrame,
                           label_column: Optional[str] = None,
                           chemprop: bool = False,
                           save_path: str = './', 
-                          feature_columns: Optional[List[str]] = None) -> Tuple[pd.DataFrame, List[Tuple[pd.DataFrame, pd.DataFrame]], Dict[str, str]]:
+                          feature_columns: List[str] = None) -> Tuple[pd.DataFrame, List[Tuple[pd.DataFrame, pd.DataFrame]], Dict[str, str]]:
 
     """
     Split the data into a test set and perform cross-validation on the remaining data, ensuring stratified distribution of the endpoints.
@@ -245,24 +256,22 @@ def stratify_split_and_cv(df: pd.DataFrame,
             val_features = extract_features(val_df, smiles_column, feature_columns)
             train_targets = train_df[endpoints]
             val_targets = val_df[endpoints]
-            train_targets.replace('', np.nan, inplace=True)
-            val_targets.replace('', np.nan, inplace=True)
             
             # Save features and targets
-            train_features.to_csv(os.path.join(save_path, f'train_features_fold{fold+1}.csv'), index=False, index_label=False)
-            val_features.to_csv(os.path.join(save_path, f'val_features_fold{fold+1}.csv'), index=False, index_label=False)
-            train_targets.to_csv(os.path.join(save_path, f'train_targets_fold{fold+1}.csv'), index=False, index_label=False)
-            val_targets.to_csv(os.path.join(save_path, f'val_targets_fold{fold+1}.csv'), index=False, index_label=False)
+            train_features.to_csv(os.path.join(save_path, f'train_features_fold{fold+1}.csv'), index=False)
+            val_features.to_csv(os.path.join(save_path, f'val_features_fold{fold+1}.csv'), index=False)
+            train_targets.to_csv(os.path.join(save_path, f'train_targets_fold{fold+1}.csv'), index=False)
+            val_targets.to_csv(os.path.join(save_path, f'val_targets_fold{fold+1}.csv'), index=False)
         else:
-            train_df.to_csv(os.path.join(save_path, f'train_fold{fold+1}.csv'), index=False, index_label=False)
-            val_df.to_csv(os.path.join(save_path, f'val_fold{fold+1}.csv'), index=False, index_label=False)
+            train_df.to_csv(os.path.join(save_path, f'train_fold{fold+1}.csv'), index=False)
+            val_df.to_csv(os.path.join(save_path, f'val_fold{fold+1}.csv'), index=False)
     
     if chemprop:
         test_features = extract_features(test_df, smiles_column, feature_columns)
         test_targets = test_df[endpoints]
-        test_features.to_csv(os.path.join(save_path, 'test_features.csv'), index=False, index_label=False)
-        test_targets.to_csv(os.path.join(save_path, 'test_targets.csv'), index=False, index_label=False)
+        test_features.to_csv(os.path.join(save_path, 'test_features.csv'), index=False)
+        test_targets.to_csv(os.path.join(save_path, 'test_targets.csv'), index=False)
     else:
-        test_df.to_csv(os.path.join(save_path, 'test.csv'), index=False, index_label=False)
+        test_df.to_csv(os.path.join(save_path, 'test.csv'), index=False)
     
     return test_df, splits, col_abbreviations

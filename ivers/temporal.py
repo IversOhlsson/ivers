@@ -1,3 +1,19 @@
+"""
+Filename: temporal.py
+
+Code for the "leaky" and "AllForOne" splits
+
+Functions "leaky_endpoint_split" and "allforone_endpoint_split" used when
+only generate one test/train split
+
+Functions "allforone_folds_endpoint_split" and "leaky_folds_endpoint_split"
+where it is possible split data into multiple sections and concistently 
+increase the train set
+
+Author: Philip Ivers Ohlsson
+License: MIT License 
+"""
+
 import pandas as pd
 from pandas import DataFrame
 import logging
@@ -15,143 +31,206 @@ def get_aggregation_rules(df: DataFrame, exclude_columns: List[str]) -> dict:
             for col in df.columns if col not in exclude_columns}
 
 
-def allforfree_endpoint_split(df: pd.DataFrame, split_size: float, smiles_column: str, endpoint_date_columns: Dict[str, str]) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def allforone_endpoint_split(df: pd.DataFrame, split_size: float, smiles_column: str,
+                             endpoint_date_columns: Dict[str, str], date_aggregation: str = 'min', 
+                             exclude_columns: List[str] = []) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Process a DataFrame by identifying test compounds for different endpoints and splitting the DataFrame based on a unified test compound list.
-    
-    Args:
-        df: DataFrame to be processed.
-        split_size: Fraction of each endpoint's data to include in the test set.
-        smiles_column: Name of the column containing compound identifiers.
-        endpoint_date_columns: Dictionary of endpoints and their respective date columns.
-    
-    Returns:
-        Tuple containing the training and testing DataFrames.
-    """
-    all_test_compounds = set()
-    
-    # First pass: Identify all test compounds across different endpoints in the DataFrame
-    for endpoint, date_column in endpoint_date_columns.items():
-        endpoint_df = df[df[endpoint].notnull()].copy()
-        test_size = int(len(endpoint_df) * split_size)
-        endpoint_df[date_column] = pd.to_datetime(endpoint_df[date_column])
-        endpoint_df_sorted = endpoint_df.sort_values(by=date_column, ascending=False)
-        new_test_compounds = set(endpoint_df_sorted.iloc[:test_size][smiles_column].unique())
-        all_test_compounds.update(new_test_compounds)
-    
-    # Split the main DataFrame into training and testing using the unified test compound set
-    df_test = df[df[smiles_column].isin(all_test_compounds)]
-    df_train = df[~df[smiles_column].isin(all_test_compounds)]
-    
-    return df_train, df_test
+    Splits a DataFrame into training and testing sets based on the specified aggregation of endpoint dates.
 
-def allforfree_folds_endpoint_split(df: pd.DataFrame, num_folds: int, smiles_column: str, endpoint_date_columns: Dict[str, str],feature_columns:List[str]=None, exclude_columns: List[str]=None, chemprop: bool=False, save_path: str = './') -> List[Tuple[pd.DataFrame, pd.DataFrame]]:
+    Parameters:
+    - df: Input DataFrame containing compound data.
+    - split_size: Proportion of the dataset to include in the test split.
+    - smiles_column: Column name containing the SMILES representation of compounds.
+    - endpoint_date_columns: Dictionary mapping endpoint names to their respective date columns.
+    - date_aggregation: Method to aggregate date ('min' for earliest, 'max' for latest, 'mean' for average).
+    - exclude_columns: List of columns to exclude from aggregation (default is empty).
+
+    Returns:
+    - Tuple containing the training and testing DataFrames.
     """
-    Process a DataFrame by splitting it into multiple train/test sets for cross-validation, with the training set growing progressively.
+    # Convert specified date columns to datetime objects
+    for column in endpoint_date_columns.values():
+        df[column] = pd.to_datetime(df[column], errors='coerce')
+
+    # Aggregate dates per specified method
+    if date_aggregation == 'mean':
+        df['tmp_date'] = df[list(endpoint_date_columns.values())].mean(axis=1, skipna=True)
+    elif date_aggregation == 'max':
+        df['tmp_date'] = df[list(endpoint_date_columns.values())].max(axis=1, skipna=True)
+    else:
+        df['tmp_date'] = df[list(endpoint_date_columns.values())].min(axis=1, skipna=True)
+
+    # Group by SMILES column and find the corresponding date per compound
+    compound_dates = df.groupby(smiles_column)['tmp_date'].min().sort_values().reset_index()
+
+    # Calculate split index for test set based on split size and sorted dates
+    split_index = int(len(compound_dates) * split_size)
+    test_compounds = set(compound_dates.iloc[:split_index][smiles_column])
+
+    # Create initial splits based on test compounds
+    df_test = df[df[smiles_column].isin(test_compounds)]
+    df_train = df[~df[smiles_column].isin(test_compounds)]
+
+    # Determine aggregation rules for other columns
+    aggregation_rules = {
+        col: 'mean' if df[col].dtype in [np.float64, np.int64] and col not in exclude_columns + [smiles_column]
+        else 'first'
+        for col in df.columns if col not in ['tmp_date'] + list(endpoint_date_columns.values())
+    }
+
+    # Group by SMILES and apply aggregation to finalize train and test DataFrames
+    all_train_df = df_train.groupby(smiles_column, as_index=False).agg(aggregation_rules)
+    all_test_df = df_test.groupby(smiles_column, as_index=False).agg(aggregation_rules)
+
+    # Remove temporary column
+    df.drop(columns=['tmp_date'], inplace=True)
+
+    return all_train_df, all_test_df
+
+
+def allforone_folds_endpoint_split(df: DataFrame, num_folds: int, smiles_column: str, endpoint_date_columns: Dict[str, str], chemprop: bool, save_path: str, aggregation: str, feature_columns: List[str] = None) -> List[Tuple[pd.DataFrame, pd.DataFrame]]:
+    """
+    Process a DataFrame by splitting it into multiple train/test sets for , with the training set growing progressively.
     
     Args:
         df: DataFrame to be processed.
-        num_folds: Number of folds for cross-validation.
+        num_folds: Number of folds
         smiles_column: Name of the column containing compound identifiers.
         endpoint_date_columns: Dictionary of endpoint names to their respective date columns.
-        feature_columns: List of columns to be used as features.
         exclude_columns: List of columns to exclude from aggregation rules.
         chemprop: Boolean to indicate if data is for chemprop.
         save_path: Path to save the resulting dataframes.
+        aggregation: first, last or average how the date asigned to the compound should be choosen
 
     Returns:
         List of tuples containing training and testing DataFrames for each fold.
     """
+    if aggregation not in ['first', 'last', 'avg']:
+        raise ValueError("Aggregation method must be 'first', 'last', or 'avg'.")
     cv_splits = []
     for fold in range(1, num_folds + 1):
-        split_size = 1 - (fold / num_folds)  # Decrease the test size progressively
-        train_df, test_df = allforfree_endpoint_split(df, split_size, smiles_column, endpoint_date_columns)
+        split_size = 1 - (fold / (num_folds + 1))  # Decrease the test size progressively
         
+        train_df, test_df = allforone_endpoint_split(df, split_size, smiles_column, endpoint_date_columns, aggregation)
+
         if chemprop:
-            if feature_columns is None:
-                feature_columns = [col for col in df.columns if col not in [smiles_column, *endpoint_date_columns.keys(), *endpoint_date_columns.values(), *exclude_columns]]
-            train_features = extract_features(train_df, smiles_column, feature_columns)
-            test_features = extract_features(test_df, smiles_column, feature_columns)
-            train_targets = train_df[list(endpoint_date_columns.keys())]
-            test_targets = test_df[list(endpoint_date_columns.keys())]
-            # add smiles column to targets
-            train_targets[smiles_column] = train_df[smiles_column]
-            test_targets[smiles_column] = test_df[smiles_column]
-            train_targets.replace('', np.nan, inplace=True)
-            test_targets.replace('', np.nan, inplace=True)
-            
+            train_features = train_df[feature_columns]
+            test_features = test_df[feature_columns]
+            # Include smiles_column in the targets
+            train_targets = train_df[[smiles_column] + list(endpoint_date_columns.keys())]
+            test_targets = test_df[[smiles_column] + list(endpoint_date_columns.keys())]
+
             # Save features and targets
-            train_features.to_csv(os.path.join(save_path, f'train_features_fold{fold}.csv'), index=False, index_label=False)
-            test_features.to_csv(os.path.join(save_path, f'test_features_fold{fold}.csv'), index=False, index_label=False)
-            train_targets.to_csv(os.path.join(save_path, f'train_targets_fold{fold}.csv'), index=False, index_label=False)
-            test_targets.to_csv(os.path.join(save_path, f'test_targets_fold{fold}.csv'), index=False, index_label=False)
+            train_features.to_csv(os.path.join(save_path, f'train_features_fold{fold}.csv'), index=False)
+            test_features.to_csv(os.path.join(save_path, f'test_features_fold{fold}.csv'), index=False)
+            train_targets.to_csv(os.path.join(save_path, f'train_targets_fold{fold}.csv'), index=False)
+            test_targets.to_csv(os.path.join(save_path, f'test_targets_fold{fold}.csv'), index=False)
         else:
-            train_df.to_csv(os.path.join(save_path, f'train_fold{fold}.csv'), index=False, index_label=False)
-            test_df.to_csv(os.path.join(save_path, f'test_fold{fold}.csv'), index=False, index_label=False)
+            # Save the complete data frames when chemprop is not used
+            train_df.to_csv(os.path.join(save_path, f'train_fold{fold}.csv'), index=False)
+            test_df.to_csv(os.path.join(save_path, f'test_fold{fold}.csv'), index=False)
 
         cv_splits.append((train_df, test_df))
 
     return cv_splits
 
-def leaky_endpoint_split(df: DataFrame, 
-                         split_size: float, 
-                         smiles_column: str, 
-                         endpoint_date_columns: Dict[str, str],
-                         exclude_columns: List[str]) -> Tuple[DataFrame, DataFrame]:
+
+def leaky_endpoint_split(df: pd.DataFrame, split_size: float, smiles_column: str, endpoint_date_columns: Dict[str, str]) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Process a DataFrame by identifying test compounds and splitting the DataFrame for multiple endpoints each with its own date column.
+    Process a DataFrame by identifying test compounds and splitting the DataFrame based on the earliest date across multiple endpoints,
+    each with its own date column. This method ensures consistent test set selection across different endpoints by converting all date columns
+    to datetime format before aggregation.
 
     Args:
         df: DataFrame to be processed.
-        split_size: Fraction of the DataFrame to include in the test set for each endpoint.
+        split_size: Fraction of the DataFrame to include in the test set.
         smiles_column: Name of the column containing compound identifiers.
-        endpoint_date_columns: Dictionary of endpoint names to their respective date columns.
-        feature_columns: List of columns to be used as features.
+        endpoint_date_columns: Dictionary mapping endpoint names to their respective date columns.
 
     Returns:
         Tuple containing the training and testing DataFrames.
     """
     
-    test_compounds_by_endpoint = {}
-    all_test_compounds = set()
+    # Convert all date columns to datetime
+    for date_column in endpoint_date_columns.values():
+        df[date_column] = pd.to_datetime(df[date_column], errors='coerce')
     
-    # Identify test compounds for each endpoint
-    for endpoint, date_column in endpoint_date_columns.items():
-        df_sorted = df.sort_values(by=date_column, ascending=False)
-        test_size = int(len(df_sorted) * split_size)
-        new_test_compounds = set(df_sorted.iloc[:test_size][smiles_column].unique())
-        all_test_compounds.update(new_test_compounds)
-        test_compounds_by_endpoint[endpoint] = new_test_compounds
-
-    train_dfs = []
-    test_dfs = []
+    # Create a new column for the earliest date across all endpoints
+    df['earliest_date'] = df[list(endpoint_date_columns.values())].min(axis=1)
     
-    # Split the DataFrame into training and testing sets for each endpoint
-    for endpoint in endpoint_date_columns.keys():
-        test_compounds = test_compounds_by_endpoint[endpoint]
-        test_df = df[df[smiles_column].isin(test_compounds)]
-        train_df = df[~df[smiles_column].isin(test_compounds)]
-        train_dfs.append(train_df)
-        test_dfs.append(test_df)
+    # Filter out rows where the earliest date is null
+    df_filtered = df[df['earliest_date'].notnull()]
 
-    # Concatenate all training and testing DataFrames
-    all_train_df = pd.concat(train_dfs, axis=0, ignore_index=True, sort=False)
-    all_test_df = pd.concat(test_dfs, axis=0, ignore_index=True, sort=False)
+    # Sorting data to pick the most recent entries as the test set
+    df_sorted = df_filtered.sort_values(by='earliest_date', ascending=False)
+    
+    test_size = int(len(df_sorted) * split_size)
+    test_indices = df_sorted.iloc[:test_size].index
+    train_indices = df_sorted.iloc[test_size:].index
+    
+    # Create test and train dataframes
+    test_df = df.loc[test_indices].copy()
+    train_df = df.loc[train_indices].copy()
 
-    # Aggregation rules to apply
-    aggregation_rules = {col: 'mean' if df[col].dtype in [np.float64, np.int64] and col not in exclude_columns and col != smiles_column 
-                else 'first' for col in df.columns}
-    aggregation_rules.update(aggregation_rules)
+    # Define aggregation rules without earliest_date
+    aggregation_rules = {col: 'mean' if df[col].dtype in [np.float64, np.int64] else 'first' for col in df.columns if col not in  ['earliest_date'] and col != smiles_column}
+    
+    # Drop the 'earliest_date' column before aggregation
+    test_df.drop(columns=['earliest_date'], inplace=True)
+    train_df.drop(columns=['earliest_date'], inplace=True)
 
-    # Group by SMILES and apply aggregation
-    all_train_df = all_train_df.groupby(smiles_column, as_index=False).agg(aggregation_rules)
-    all_test_df = all_test_df.groupby(smiles_column, as_index=False).agg(aggregation_rules)
+    # Aggregation to ensure no duplicate SMILES in the sets
+    all_train_df = train_df.groupby(smiles_column).agg(aggregation_rules).reset_index()
+    all_test_df = test_df.groupby(smiles_column).agg(aggregation_rules).reset_index()
 
     return all_train_df, all_test_df
+
 
 # ------------------------------------ #
 # with chemprop compatibility          #
 # ------------------------------------ #
+
+def expand_df_to_endpoints(df: pd.DataFrame, endpoint_date_columns: Dict[str, str]) -> pd.DataFrame:
+    """
+    Transforms the DataFrame so that each row corresponds to a single endpoint,
+    setting null for other endpoint values. Rows where all endpoint values are None are not included.
+    It also removes any duplicate rows and rows where all endpoint values are None post transformation.
+    
+    Args:
+        df: Original DataFrame.
+        endpoint_date_columns: Dictionary mapping endpoint values to their respective date columns.
+    
+    Returns:
+        DataFrame with expanded rows for each endpoint, maintaining NaN where data is missing,
+        removing rows where all endpoints are None, and eliminating duplicates.
+    """
+    rows = []
+    for idx, row in df.iterrows():
+        if any(row[value_col] is not None for value_col in endpoint_date_columns.keys()):
+            for value_col, date_col in endpoint_date_columns.items():
+                new_row = {col: None for col in df.columns}  # Initialize all columns to None
+                new_row.update(row)  # Update with original data
+
+                # Reset other endpoints and their dates to None
+                for vc, dc in endpoint_date_columns.items():
+                    new_row[vc] = None
+                    new_row[dc] = None
+
+                new_row[value_col] = row[value_col]  # Set current endpoint
+                new_row[date_col] = row[date_col]    # Set current endpoint's date
+
+                rows.append(new_row)
+
+    new_df = pd.DataFrame(rows)
+    new_df = new_df.drop_duplicates().reset_index(drop=True)
+
+    # Remove rows where all endpoint values are None
+    endpoints = list(endpoint_date_columns.keys())  # List of all endpoint columns
+    new_df = new_df.dropna(subset=endpoints, how='all')  # Drop rows where all endpoints are NaN
+
+    return new_df
+
+
 def extract_features(df: pd.DataFrame, smiles_column: str, feature_columns: List[str]) -> pd.DataFrame:
     """
     Extract features from the DataFrame.
@@ -164,15 +243,9 @@ def extract_features(df: pd.DataFrame, smiles_column: str, feature_columns: List
     Returns:
         A DataFrame containing the SMILES and features.
     """
-    return df[feature_columns]
+    return df[[smiles_column] + feature_columns]
 
-
-def leaky_folds_endpoint_split(df: DataFrame, 
-                               num_folds: int, 
-                               smiles_column: str,
-                               endpoint_date_columns: Dict[str, str], 
-                               feature_columns: List[str],
-                               exclude_columns: List[str], chemprop: bool, save_path: str) -> List[Tuple[DataFrame, DataFrame]]:
+def leaky_folds_endpoint_split(df: DataFrame, num_folds: int, smiles_column: str, endpoint_date_columns: Dict[str, str], chemprop: bool, save_path: str, feature_columns: List[str] = None) -> List[Tuple[DataFrame, DataFrame]]:
     """
     Process a DataFrame by splitting it into multiple train/test sets for cross-validation, with the training set growing progressively.
     The size of the test set decreases with each fold, increasing the training data size.
@@ -182,44 +255,39 @@ def leaky_folds_endpoint_split(df: DataFrame,
         num_folds: Number of folds for cross-validation.
         smiles_column: Name of the column containing compound identifiers.
         endpoint_date_columns: Dictionary of endpoint names to their respective date columns.
-        feature_columns: List of columns to be used as features.
-        exclude_columns: List of columns to exclude from aggregation rules.
         chemprop: Boolean to indicate if data is for chemprop.
         save_path: Path to save the resulting dataframes.
-
+        feature_columns: List of columns to be used as features.
     Returns:
         List of tuples containing training and testing DataFrames for each fold.
     """
     splits = []
+    df = expand_df_to_endpoints(df, endpoint_date_columns)
 
     # test comment
-    for fold in range(1, num_folds + 1):
-        split_size = 1 - (fold / num_folds)  # Decrease the test size progressively
-
+    for fold in range(1, num_folds + 1 ):
+        split_size = 1 - (fold / (num_folds + 1))  # Decrease the test size progressively
+        
         # Use the leaky_endpoint_split function to generate each fold's split
-        train_df, test_df = leaky_endpoint_split(df, split_size, smiles_column, endpoint_date_columns, exclude_columns)
+        train_df, test_df = leaky_endpoint_split(df, split_size, smiles_column, endpoint_date_columns)
         
         if chemprop:
-            if feature_columns is None:
-                feature_columns = [col for col in df.columns if col not in [smiles_column, *endpoint_date_columns.keys(), *endpoint_date_columns.values(), *exclude_columns]]
             train_features = extract_features(train_df, smiles_column, feature_columns)
             test_features = extract_features(test_df, smiles_column, feature_columns)
-            train_targets = train_df[list(endpoint_date_columns.keys())]
-            test_targets = test_df[list(endpoint_date_columns.keys())]
-            # add the smiles column to the targets
-            train_targets[smiles_column] = train_df[smiles_column]
-            test_targets[smiles_column] = test_df[smiles_column]
-            train_targets.replace('', np.nan, inplace=True)
-            test_targets.replace('', np.nan, inplace=True)
+
+            # Include smiles_column in the targets
+            train_targets = train_df[[smiles_column] + list(endpoint_date_columns.keys())]
+            test_targets = test_df[[smiles_column] + list(endpoint_date_columns.keys())]
 
             # Save features and targets
-            train_features.to_csv(os.path.join(save_path, f'train_features_fold{fold}.csv'), index=False, index_label=False)
-            test_features.to_csv(os.path.join(save_path, f'test_features_fold{fold}.csv'), index=False, index_label=False)
-            train_targets.to_csv(os.path.join(save_path, f'train_targets_fold{fold}.csv'), index=False, index_label=False)
-            test_targets.to_csv(os.path.join(save_path, f'test_targets_fold{fold}.csv'), index=False, index_label=False)
+            train_features.to_csv(os.path.join(save_path, f'train_features_fold{fold}.csv'), index=False)
+            test_features.to_csv(os.path.join(save_path, f'test_features_fold{fold}.csv'), index=False)
+            train_targets.to_csv(os.path.join(save_path, f'train_targets_fold{fold}.csv'), index=False)
+            test_targets.to_csv(os.path.join(save_path, f'test_targets_fold{fold}.csv'), index=False)
         else:
-            train_df.to_csv(os.path.join(save_path, f'train_fold{fold}.csv'), index=False, index_label=False)
-            test_df.to_csv(os.path.join(save_path, f'test_fold{fold}.csv'), index=False, index_label=False)
+            train_df.to_csv(os.path.join(save_path, f'train_fold{fold}.csv'), index=False)
+            test_df.to_csv(os.path.join(save_path, f'test_fold{fold}.csv'), index=False)
+
 
         splits.append((train_df, test_df))
 

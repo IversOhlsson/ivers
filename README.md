@@ -1,24 +1,35 @@
+
+Here's the updated documentation encapsulated in a code block for clarity:
+
+vbnet
+Copy code
 # Ivers
 
-
-This project offers tools for managing data splits, ensuring endpoint distributions are maintained, and presents two novel temporal split techniques: 'leaky' and 'all for free' splits. See the explanation below. 
-
-**Note**: This library was used in this paper [PlaceHolder](https://github.com/IversOhlsson/ivers) to generate the data splits.
+Ivers offers a suite of tools designed for managing data splits while maintaining endpoint distributions, and introduces two novel temporal split techniques: 'Leaky' and 'All for Free'. This library ensures that data splits are suitable for realistic scenarios and rigorous testing needs in various applications. It was utilized to generate data splits in the research outlined in the [linked paper](https://github.com/IversOhlsson/ivers).
 
 ## Features
-  - **Temporal Leaky**: Allows for forward-leakage in your data to simulate real-world scenarios where future data might influence the model subtly.
-  - **Temporal AllForFree**: Provides a stricter temporal separation, ensuring that the training data is entirely independent of the test set, suitable for rigorous testing of model predictions over time.
-  - **Temporal Fold Split**: Implements a novel approach to increasing the training set size successively across multiple folds based on the temporal time sequence
-  - **Stratified Endpoint Split**: Our library introduces a stratified endpoint split, crucial for maintaining a consistent distribution of data across different categories or endpoints in your datasets. Especially useful in scenarios where endpoint distributions are critical, such as in cheminformatics and bioinformatics.
-  - **Cross-Validation Support**: Integrates capabilities to ensure that each cross-validation split maintains endpoint distribution, ideal for developing models that are generalizable across varied data conditions.
+  - **Temporal Leaky**: Simulates real-world scenarios by allowing forward-leakage in data, which might subtly influence future models.
+  - **Temporal AllForFree**: Ensures strict temporal separation, keeping training data completely independent of the test set—ideal for accurate long-term model predictions.
+  - **Temporal Fold Split**: Progressively increases the training set size across multiple folds, adhering to the temporal sequence, enhancing model robustness over time.
+  - **Stratified Endpoint Split**: Introduces a stratified approach to splitting, crucial for consistent endpoint distribution across different categories in datasets—beneficial in fields like cheminformatics and bioinformatics.
+
+
+## Code Functions
+The library includes several functions tailored for different splitting strategies:
+
+- `stratify_endpoint`, `stratify_split_and_cv`: These functions generate train/test and cross-validation splits that respect endpoint distribution.
+- `leaky_endpoint_split`, `allforone_endpoint_split`: Used for generating a single train/test split with respective temporal dynamics.
+- `allforone_folds_endpoint_split`, `leaky_folds_endpoint_split`: Enable multiple sectional splits, increasing training data size consistently.
+- `balanced_scaffold_cv`: Supports balanced scaffold cross-validation, enhancing data representativeness in splits.
+
 
 ## Integration with Chemprop
 
-- By setting the `chemprop` variable to `true`, the library will generate splits compatible with the Chemprop library. This ensures that the features and train-test splits are generated in a way that can easily be used with Chemprop.
+- Activating the `chemprop` configuration allows the library to generate splits that are directly compatible with the Chemprop framework, facilitating seamless integration and usage.
 
 ## Getting Started or Contributing
 
-To get started with this library, clone the repository and install the required dependencies:
+To begin using Ivers, clone the repository and set up the necessary dependencies:
 
 ```bash
 git clone https://github.com/IversOhlsson/ivers.git

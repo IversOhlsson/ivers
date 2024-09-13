@@ -3,7 +3,7 @@ import sys
 sys.path.append('C:\\Users\\philip.ivers.ohlsson.TSS\\Documents\\ivers')
 import os
 import numpy as np
-from ivers.scaffold import balanced_scaffold_cv
+from ivers.scaffold import balanced_scaffold
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import AllChem
@@ -23,7 +23,7 @@ class TestBalancedScaffoldCV(unittest.TestCase):
     def test_function_savepahts(self):
         # create test outputs folder
         os.mkdir('test_outputs')
-        _, results, fold_sizes = balanced_scaffold_cv(self.df, 
+        _, results, fold_sizes = balanced_scaffold(self.df, 
                                                       endpoints=[], 
                                                       smiles_column=self.smiles_column, 
                                                       n_splits=self.n_splits, 
@@ -48,7 +48,7 @@ class TestBalancedScaffoldCV(unittest.TestCase):
 
     def test_function_execution(self):
         # Test the execution of the function
-        _, results, fold_sizes = balanced_scaffold_cv(self.df, 
+        _, results, fold_sizes = balanced_scaffold(self.df, 
                                                       endpoints=[], 
                                                       smiles_column=self.smiles_column, 
                                                       n_splits=self.n_splits, 
