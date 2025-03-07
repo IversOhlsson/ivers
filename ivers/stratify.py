@@ -92,7 +92,10 @@ def split_dataframe(df: DataFrame, test_size: float, random_state: int = 42) -> 
     """
     
     class_counts = df['StratifyKey'].value_counts()
-    small_classes = class_counts[class_counts < 2].index
+    #small_classes = class_counts[class_counts < 2].index
+    required_min_samples = 2 * (n_splits + 1)
+
+    small_classes = value_counts[value_counts < required_min_samples].index.tolist()
     # ----------------- Concat Small Classes ----------------- #
     if small_classes.any():
         logging.info(f"Small classes found: {small_classes.tolist()}, merging into a single class for stratification.")
@@ -196,7 +199,7 @@ def stratify_split_and_cv(df: pd.DataFrame,
                           aggregation_rules: Dict[str, str], 
                           test_size: float, 
                           n_splits: int, 
-                          random_state: int = 42, 
+                          random_state: int = 1337, 
                           label_column: Optional[str] = None,
                           chemprop: bool = False,
                           save_path: str = './', 
@@ -227,6 +230,7 @@ def stratify_split_and_cv(df: pd.DataFrame,
     
     # Check for small classes -------------------------------- #
     value_counts = df_processed['StratifyKey'].value_counts()
+    print(value_counts)
     if any(value_counts < 2*(n_splits + 1)):
         small_classes = value_counts[value_counts < n_splits].index.tolist()
         raise ValueError(f"Classes {small_classes} not enought data points, {2 * (n_splits+1)} needed for {n_splits} splits.")

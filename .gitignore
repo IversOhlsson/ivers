@@ -9,3 +9,8 @@ build/*
 *.pyc
 docs/*
 /build
+temporary.py
+env/*
+ivers/temporal copy.py
+ivers/temporal.py
+*.csv
