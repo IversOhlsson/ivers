@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='ivers',
-    version='0.2.2',
+    version='0.3.0',
     packages=find_packages(),
     description='Python package to stratify split datasets based on endpoint distributions',
     long_description=open('README.md').read(),

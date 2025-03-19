@@ -1,11 +1,12 @@
 
 
 # Ivers
-Ivers is a toolkit designed to help split your data into training and testing sets in a way that mimics real-world situations, making it incredibly useful for fields like cheminformatics and bioinformatics. It introduces unique methods for creating these splits, such as Leaky and All for Free, to ensure that models train on data that closely reflects actual scenarios they will encounter, improving their effectiveness.
+Ivers is a toolkit designed for creating realistic training and testing splits for machine learning models, particularly in cheminformatics and bioinformatics. It provides specialized methods, such as **Leaky** and **AllForOne**, to ensure models are trained on data that closely reflects real-world scenarios, improving their predictive performance.
 
 ## Features
 ### Temporal Leaky
-Simulates real-world scenarios by permitting forward-leakage in data, subtly influencing how future models may learn from past data. Allows controlled forward leakage, meaning a compound may appear in both training ($T$) and test ($X$) sets if associated with different endpoints at distinct times. For compound $c$, endpoint $e$, and measurement date $D_{c,e}$, assignments to training or test sets are determined by a global threshold date $D_{\text{thresh}}$:
+This method allows controlled forward leakage in data, simulating how future models may learn from past observations. A compound can appear in both the training ($T$) and test ($X$) sets if its endpoints are measured at different times. Given a compound $c$, an endpoint $e$, and a measurement date $D_{c,e}$, the split is determined based on a global threshold date, $D_{\text{thresh}}$.
+
 
 ```math
 S(c, e) = 
@@ -15,7 +16,8 @@ X & \text{if } D_{c,e} \geq D_{\text{thresh}}
 \end{cases}
 ```
 ### Temporal AllForFree
-Enforces strict temporal independence, ideal for cases needing accurate long-term model projections without any future leakage. Ensures strict temporal independence by assigning each compound entirely to either training or test sets based on its earliest recorded endpoint date, ${\min D_c}$:
+Ensures strict temporal independence, making it ideal for scenarios that require accurate long-term model projections without future data leakage. Each compound is assigned exclusively to either the training or test set based on its earliest recorded endpoint date, ${\min D_c}$.
+
 
 ```math
 S(c) = 
@@ -26,13 +28,14 @@ X & \text{if } \min D_c \geq D_{\text{thresh}}
 ```
 
 ### Temporal Fold Split
-Progressively increases the training set size across multiple folds, strictly following the chronological order for more robust model evaluation over time.
+Splits data chronologically, progressively increasing the training set size across multiple folds. This approach ensures a more robust evaluation of model performance over time.
 
 ### Stratified Endpoint Split
-Ensures that splits are balanced according to endpoint distributions across categories (e.g., chemical scaffolds or bioactivity classes).
+Balances training and test sets based on endpoint distributions, ensuring that endpoints remain well-represented.
 
 ### Balanced Scaffold CV
-Enhances representativeness in cross-validation splits, particularly useful in cheminformatics where scaffold distributions can vary significantly.
+Enhances the representativeness of cross-validation splits by considering scaffold distributions, making it particularly useful for cheminformatics applications.
+
 
 ## Installation
 ### From Source:
@@ -49,10 +52,10 @@ pip install ivers
 ## Usage Example
 The library includes several functions tailored for different splitting strategies:
 
-- `stratify_endpoint`, `stratify_split_and_cv`: These functions generate train/test and cross-validation splits that respect endpoint distribution.
-- `leaky_endpoint_split`, `allforone_endpoint_split`: Used for generating a single train/test split with respective temporal dynamics.
-- `allforone_folds_endpoint_split`, `leaky_folds_endpoint_split`: Enable multiple sectional splits, increasing training data size consistently.
-- `balanced_scaffold_cv`: Supports balanced scaffold cross-validation, enhancing data representativeness in splits.
+- `stratify_endpoint`, `stratify_split_and_cv`: Generate train/test and cross-validation splits while maintaining endpoint balance.
+- `leaky_endpoint_split`, `allforone_endpoint_split`: Create single train/test splits while incorporating temporal dynamics.
+- `allforone_folds_endpoint_split`, `leaky_folds_endpoint_split`: Generate progressive training splits that increase dataset size over time.
+- `balanced_scaffold_cv`: Supports balanced scaffold-based cross-validation, improving data representativeness.
 ```bash
 import pandas as pd
 from ivers.temporal import (
@@ -172,7 +175,12 @@ df_scaffold, scaffold_splits, scaffold_fold_counts = balanced_scaffold(
 ```
 
 ###  Integration with Chemprop
-If you're using Chemprop for molecular property predictions, Ivers can directly output data splits that are compatible with Chemprop's training scripts. Just set chemprop=True in any of the splitting functions to enable this feature. This integration simplifies the process of preparing your dataset for model training, making it easier to get reliable results.
+Ivers supports direct integration with **Chemprop**, allowing you to generate training and test splits that work seamlessly with its training scripts. Just set `chemprop=True` in any splitting function to output Chemprop-compatible files, making dataset preparation more straightforward.
+
+
+
+
+
 
 
 
